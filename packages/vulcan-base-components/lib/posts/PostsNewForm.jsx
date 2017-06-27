@@ -3,7 +3,7 @@ import Posts from "meteor/vulcan:posts";
 import React from 'react';
 import PropTypes from 'prop-types';
 import { intlShape, FormattedMessage } from 'meteor/vulcan:i18n';
-import { withRouter } from 'react-router'
+import { withRouter } from 'react-router-dom'
 
 const PostsNewForm = (props, context) => 
   <Components.ShowIf

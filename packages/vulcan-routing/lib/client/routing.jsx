@@ -1,6 +1,6 @@
 import React from 'react';
 import { ApolloProvider } from 'react-apollo';
-import { applyRouterMiddleware } from 'react-router';
+import { applyRouterMiddleware } from 'react-router-dom';
 import { useScroll } from 'react-router-scroll';
 
 import { Meteor } from 'meteor/meteor';

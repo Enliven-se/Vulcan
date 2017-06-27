@@ -1,4 +1,4 @@
-import { createMemoryHistory } from 'react-router';
+import { createMemoryHistory } from 'react-router-dom';
 import { compose } from 'redux';
 import cookieParser from 'cookie-parser';
 

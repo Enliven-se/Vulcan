@@ -2,7 +2,7 @@ import { Components, registerComponent, withDocument, withCurrentUser } from 'me
 import React from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import Users from 'meteor/vulcan:users';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 
 const UsersProfile = (props) => {
   if (props.loading) {

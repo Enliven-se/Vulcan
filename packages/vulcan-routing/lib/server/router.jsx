@@ -1,5 +1,5 @@
 import React from 'react';
-import { match, RouterContext, createMemoryHistory } from 'react-router';
+import { match, RouterContext, createMemoryHistory } from 'react-router-dom';
 import ReactDOMServer from 'react-dom/server';
 import moment from 'moment';
 import { RoutePolicy } from 'meteor/routepolicy';

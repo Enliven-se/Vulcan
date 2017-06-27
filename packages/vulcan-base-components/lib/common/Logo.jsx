@@ -1,6 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { IndexLink } from 'react-router';
+import { IndexLink } from 'react-router-dom';
 
 const Logo = ({logoUrl, siteTitle}) => {
   if (logoUrl) {

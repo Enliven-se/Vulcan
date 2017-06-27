@@ -5,7 +5,7 @@ import { FormattedMessage } from 'meteor/vulcan:i18n';
 import Button from 'react-bootstrap/lib/Button';
 import DropdownButton from 'react-bootstrap/lib/DropdownButton';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
-import { withRouter } from 'react-router'
+import { withRouter } from 'react-router-dom'
 import { LinkContainer } from 'react-router-bootstrap';
 import Categories from 'meteor/vulcan:categories';
 import { withApollo } from 'react-apollo';

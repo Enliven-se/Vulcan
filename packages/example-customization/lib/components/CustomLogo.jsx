@@ -5,7 +5,7 @@ it the same way.
 */
 
 import React from 'react';
-import { IndexLink } from 'react-router';
+import { IndexLink } from 'react-router-dom';
 import Users from 'meteor/vulcan:users';
 import { replaceComponent } from 'meteor/vulcan:core';
 

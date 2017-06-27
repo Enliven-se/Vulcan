@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import Users from 'meteor/vulcan:users';
 import { Components } from 'meteor/vulcan:core';
 

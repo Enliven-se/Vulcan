@@ -1,6 +1,6 @@
 import React from 'react';
 import Posts from 'meteor/vulcan:posts';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 
 const AdminUsersPosts = ({ user }) => 
   <ul>

@@ -1,6 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import Posts from "meteor/vulcan:posts";
 
 const PostsCommenters = ({post}) => {

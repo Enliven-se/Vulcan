@@ -2,7 +2,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 
 const UsersAvatar = ({className, user, link}) => {

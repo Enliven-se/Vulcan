@@ -4,7 +4,7 @@ import { Components, registerComponent, getFragment, withMessages, withCurrentUs
 import { intlShape } from 'meteor/vulcan:i18n';
 import Posts from "meteor/vulcan:posts";
 import Users from "meteor/vulcan:users";
-import { withRouter } from 'react-router'
+import { withRouter } from 'react-router-dom'
 
 class PostsEditForm extends PureComponent {
 
@@ -34,7 +34,7 @@ class PostsEditForm extends PureComponent {
           }}
           removeSuccessCallback={({ documentId, documentTitle }) => {
             // post edit form is being included from a single post, redirect to index
-            // note: this.props.params is in the worst case an empty obj (from react-router)
+            // note: this.props.params is in the worst case an empty obj (from react-router-dom)
             if (this.props.params._id) {
               this.props.router.push('/');
             }
