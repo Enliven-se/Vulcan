@@ -87,7 +87,7 @@ export const validateModifier = (modifier, document, collection, context) => {
   const modifiedProperties = _.keys(set).concat(_.keys(unset));
   modifiedProperties.forEach(function(fieldName) {
     var field = schema[fieldName];
-    if (!field || !Users.canEditField(currentUser, field, document)) {
+    if (!field || !Users.canUpdateField(currentUser, field, document)) {
       validationErrors.push({
         id: 'errors.disallowed_property_detected',
         properties: { name: fieldName },
@@ -225,7 +225,7 @@ export const validateModifierNotUsed = (modifier, document, collection, context)
   const modifiedProperties = _.keys(set).concat(_.keys(unset));
   modifiedProperties.forEach(function(fieldName) {
     var field = schema[fieldName];
-    if (!field || !Users.canEditField(currentUser, field, document)) {
+    if (!field || !Users.canUpdateField(currentUser, field, document)) {
       validationErrors.push({
         id: 'app.disallowed_property_detected',
         data: {name: fieldName},
