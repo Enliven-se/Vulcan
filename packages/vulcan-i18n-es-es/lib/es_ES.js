@@ -48,6 +48,7 @@ addStrings('es', {
   'forms.confirm_discard': 'Discard changes?', // TODO: translate
 
   'users.profile': 'Perfil',
+  'users.following': 'Following',
   'users.complete_profile': 'Complete su perfil',
   'users.profile_completed': 'Perfil completado.',
   'users.edit_account': 'Editar cuenta',

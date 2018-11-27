@@ -50,6 +50,7 @@ addStrings('fr', {
   'forms.confirm_discard': 'Supprimer les modifications ?',
 
   'users.profile': 'Profil',
+  'users.following': 'Following',
   'users.complete_profile': 'Complétez votre profil',
   'users.profile_completed': 'Profil completé.',
   'users.edit_account': 'Modifier le compte',

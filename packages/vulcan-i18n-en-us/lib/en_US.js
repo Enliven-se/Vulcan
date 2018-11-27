@@ -48,6 +48,7 @@ addStrings('en', {
   'forms.confirm_discard': 'Discard changes?',
 
   'users.profile': 'Profile',
+  'users.following': 'Following',
   'users.complete_profile': 'Complete your Profile',
   'users.profile_completed': 'Profile completed.',
   'users.edit_account': 'Edit Account',
