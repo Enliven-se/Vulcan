@@ -10,6 +10,7 @@ addStrings('es', {
   'accounts.error_username_required': 'Nombre de usuario requerido',
   'accounts.error_accounts_': '',
   'accounts.error_unknown': 'Error desconocido',
+  'accounts.acceptToS': 'Please accept the Terms And Conditions before continuing.',
   'accounts.error_user_not_found': 'Usuario no encontrado',
   'accounts.error_username_already_exists': 'El nombre de usuario ya existe',
   'accounts.enter_username_or_email': 'Ingresar nombre de usuario o correo electrónico',

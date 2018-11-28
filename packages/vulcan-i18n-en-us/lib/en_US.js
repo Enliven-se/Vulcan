@@ -10,6 +10,7 @@ addStrings('en', {
   'accounts.error_username_required': 'Username required',
   'accounts.error_accounts_': '',
   'accounts.error_unknown': 'Unknown error',
+  'accounts.acceptToS': 'Please accept the Terms And Conditions before continuing.',
   'accounts.error_user_not_found': 'User not found',
   'accounts.error_username_already_exists': 'Username already exists',
   'accounts.enter_username_or_email': 'Enter username or email',
@@ -142,5 +143,5 @@ addStrings('en', {
   'errors.maxString': 'Field “{label}” is limited to {max} characters.',
   'errors.generic': 'Sorry, something went wrong: <code>{errorMessage}</code>.',
   'errors.generic_report': 'Sorry, something went wrong:  <code>{errorMessage}</code>. <br/>An error report has been generated.',
-  
+
 });

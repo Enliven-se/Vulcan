@@ -811,10 +811,10 @@ export class AccountsLoginFormInner extends TrackerComponent {
       if (this.state.isAccepted) {
        _options.confirmed_tos = new Date();
      } else {
-       this.showMessage('accounts.error_unknown', 'error');
+       this.showMessage('accounts.acceptToS', 'error');
        $('.act-btn').removeAttr('disabled');
        self.setState({ waiting: false });
-       onSubmitHook('Unknown error', formState);
+       onSubmitHook('Please accept the Terms And Conditions before continuing.', formState);
        return;
      }
       Accounts.createUser(_options, (error) => {
@@ -997,7 +997,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
   }
 
   onToSconfirmed() {
-   console.log('called');
    this.setState({
      isAccepted: !this.state.isAccepted
    });
