@@ -2,11 +2,11 @@ import SimpleSchema from 'simpl-schema';
 import { Utils, getCollection, Connectors, Locales } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
 
 ///////////////////////////////////////
-// Order for the Schema is as follows. Change as you see fit: 
-// 00. 
+// Order for the Schema is as follows. Change as you see fit:
+// 00.
 // 10. Display Name
 // 20. Email
-// 30. Bio 
+// 30. Bio
 // 40. Slug
 // 50. Website
 // 60. Twitter username
@@ -304,7 +304,31 @@ const schema = {
         return Users.getEditUrl(user, true);
       },
     }
-  }
+  },
+  bio: {
+    type: String,
+    optional: true,
+    defaultValue: " ",
+    control: "textarea",
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    viewableBy: ['guests'],
+    order: 30,
+    searchable: true
+  },
+  website: {
+    type: String,
+    defaultValue: " ",
+    regEx: SimpleSchema.RegEx.Url,
+    optional: true,
+    control: "text",
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    viewableBy: ['guests'],
+    order: 50,
+  },
+
+
 
 };
 
