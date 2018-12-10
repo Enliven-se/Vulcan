@@ -1,10 +1,10 @@
-import Users from 'meteor/vulcan:users';
-import { getSetting } from 'meteor/vulcan:core';
-import get from 'lodash/get';
+// import Users from 'meteor/vulcan:users';
+// import { getSetting } from 'meteor/vulcan:core';
+// import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
-import { formatMessage } from 'meteor/vulcan:i18n';
-import _isEmpty from 'lodash/isEmpty';
-import { inspect } from 'util';
+// import { formatMessage } from 'meteor/vulcan:i18n';
+// import _isEmpty from 'lodash/isEmpty';
+// import { inspect } from 'util';
 
 export const initFunctions = [];
 export const logFunctions = [];
@@ -18,11 +18,16 @@ export const userFields = {
   isAdmin: 'isAdmin',
 };
 
-export const addInitFunction = fn => {
-  initFunctions.push(fn);
-  // execute init function as soon as possible
-  fn();
-};
+/*
+
+Moved to server/client's init.js
+
+*/
+// export const addInitFunction = fn => {
+//   initFunctions.push(fn);
+//   // on server, execute init function as soon as possible
+//   fn();
+// };
 
 export const addLogFunction = fn => {
   logFunctions.push(fn);

@@ -1,4 +1,4 @@
-import { addStrings } from 'meteor/vulcan:core';
+import {addStrings} from 'meteor/vulcan:core';
 
 addStrings('en', {
 
@@ -88,7 +88,8 @@ addStrings('en', {
   'users.email_already_taken': 'This email is already taken: {value}',
 
   'settings': 'Settings',
-  'settings.json_message': 'Note: settings already provided in your <code>settings.json</code> file will be disabled.',
+  'settings.json_message': 'Note: settings already provided in your <code>settings.json</code> file will be ' +
+      'disabled.',
   'settings.edit': 'Edit Settings',
   'settings.edited': 'Settings edited (please reload).',
   'settings.title': 'Title',
@@ -120,7 +121,7 @@ addStrings('en', {
 
   'app.loading': 'Loading…',
   'app.404': 'Sorry, we couldn\'t find what you were looking for.',
-  'app.missing_document':  'Sorry, we couldn\'t find the document you were looking for.',
+  'app.missing_document': 'Sorry, we couldn\'t find the document you were looking for.',
   'app.powered_by': 'Built with Vulcan.js',
   'app.or': 'Or',
   'app.noPermission': 'Sorry, you do not have the permission to do this at this time.',
@@ -128,7 +129,8 @@ addStrings('en', {
   'app.document_not_found': 'Document not found (id: {value})',
   'app.disallowed_property_detected': 'Disallowed property detected: {value}',
   'app.something_bad_happened': 'Something bad happened...',
-  'app.embedly_not_authorized': 'Invalid Embedly API key provided in the settings file. To find your key, log into https://app.embed.ly -> API',
+  'app.embedly_not_authorized': 'Invalid Embedly API key provided in the settings file. To find your key, log int' +
+      'o https://app.embed.ly -> API',
 
   'cards.edit': 'Edit',
   'datatable.new': 'New',
@@ -138,10 +140,24 @@ addStrings('en', {
   'admin': 'Admin',
   'notifications': 'Notifications',
 
-  'errors.expectedType': 'Expected a field “{label}” of type {dataType}, got “{value}” instead.',
+  'errors.expectedType': 'Expected type {dataType} for field “{label}”, received “{value}” instead.',
   'errors.required': 'Field “{label}” is required.',
+  'errors.minString': 'Field “{label}” needs to have at least {min} characters',
   'errors.maxString': 'Field “{label}” is limited to {max} characters.',
   'errors.generic': 'Sorry, something went wrong: <code>{errorMessage}</code>.',
-  'errors.generic_report': 'Sorry, something went wrong:  <code>{errorMessage}</code>. <br/>An error report has been generated.',
+  'errors.generic_report': 'Sorry, something went wrong:  <code>{errorMessage}</code>. <br/>An error report ' +
+      'has been generated.',
+  'errors.minNumber': 'Field “{label}” must be higher than {min}. ',
+  'errors.maxNumber': 'Field “{label}” must be lower than {max}. ',
+  'errors.minCount': 'There needs to be at least {count} in field “{label}”.',
+  'errors.maxCount': 'Field “{label}” is only allowed {count}.',
+  'errors.regEx': 'Field “{label}”: wrong formatting',
+  'errors.badDate': 'Field “{label}” is not a date.',
+  'errors.notAllowed': 'The value for field “{label}” is not allowed.',
+  'errors.noDecimal': 'The value for field “{label}” must not be a decimal number.',
+  //TODO other simple schema errors
+  'errors.minNumberExclusive': '',
+  'errors.maxNumberExclusive': '',
+  'errors.keyNotInSchema': ''
 
 });
