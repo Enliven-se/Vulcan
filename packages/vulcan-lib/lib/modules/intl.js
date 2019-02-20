@@ -24,11 +24,11 @@ export const getString = ({id, values, defaultMessage, locale}) => {
     });
   }
   return message;
-}
+};
 
 export const registerDomain = (locale, domain) => {
   Domains[domain] = locale;
-}
+};
 
 export const Locales = [];
 
@@ -67,6 +67,13 @@ export const getIntlString = () => {
   IntlString.name = 'IntlString';
   return IntlString;
 };
+
+/*
+
+Check if a schema has at least one intl field
+
+*/
+export const schemaHasIntlFields = schema => Object.keys(schema).some(fieldName => isIntlField(schema[fieldName]));
 
 /*
 

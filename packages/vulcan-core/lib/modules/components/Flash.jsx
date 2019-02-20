@@ -27,7 +27,7 @@ class Flash extends PureComponent {
       return {
         message: errorObject,
         type: 'error'
-      }
+      };
     } else {
       // else return full error object after internationalizing message
       const { id, message, properties } = errorObject;
@@ -45,16 +45,16 @@ class Flash extends PureComponent {
     const flashType = type === 'error' ? 'danger' : type; // if flashType is "error", use "danger" instead
 
     return (
-      <Components.Alert className="flash-message" variant={flashType} onDismiss={this.dismissFlash}>
+      <Components.Alert className="flash-message" variant={flashType} onClose={this.dismissFlash}>
         <span dangerouslySetInnerHTML={{ __html: message }} />
       </Components.Alert>
-    )
+    );
   }
 }
 
 Flash.propTypes = {
   message: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.string.isRequired])
-}
+};
 
 Flash.contextTypes = {
   intl: intlShape
@@ -62,15 +62,15 @@ Flash.contextTypes = {
 
 registerComponent('Flash', Flash);
 
-const FlashMessages = ({messages, clear, markAsSeen}) => {
+const FlashMessages = ({messages, clear, markAsSeen, className}) => {
   return (
-    <div className="flash-messages">
+    <div className={`flash-messages ${className}`}>
       {messages
         .filter(message => message.show)
         .map(message => <Components.Flash key={message._id} message={message} clear={clear} markAsSeen={markAsSeen} />)}
     </div>
   );
-}
+};
 
 FlashMessages.displayName = 'FlashMessages';
 

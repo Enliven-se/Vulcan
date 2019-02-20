@@ -1,12 +1,15 @@
 import React from 'react';
-import { Textarea } from 'formsy-react-components';
-import { registerComponent } from 'meteor/vulcan:core';
+import Form from 'react-bootstrap/Form';
+import {Components, registerComponent} from 'meteor/vulcan:core';
 
-const TextareaComponent = ({refFunction, inputProperties, ...properties}) => {
+const TextareaComponent = ({refFunction, inputProperties, itemProperties}) => {
   inputProperties.value = inputProperties.value || " ";
+
   return (
-    <Textarea ref={refFunction} {...inputProperties} />
-  )
+    <Components.FormItem {...inputProperties} {...itemProperties}>
+      <Form.Control as="textarea" ref={refFunction} {...inputProperties}/>
+    </Components.FormItem>
+  );
 }
 
 registerComponent('FormComponentTextarea', TextareaComponent);

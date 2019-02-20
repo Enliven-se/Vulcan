@@ -1,7 +1,6 @@
 import {addStrings} from 'meteor/vulcan:core';
 
 addStrings('en', {
-
   'accounts.error_incorrect_password': 'Incorrect password',
   'accounts.error_email_required': 'Email required',
   'accounts.error_email_already_exists': 'Email already exists',
@@ -47,6 +46,9 @@ addStrings('en', {
   'forms.delete_confirm': 'Delete document?',
   'forms.revert': 'Revert',
   'forms.confirm_discard': 'Discard changes?',
+  'forms.day': 'Day',
+  'forms.month': 'Month',
+  'forms.year': 'Year',
 
   'users.profile': 'Profile',
   'users.following': 'Following',
@@ -78,8 +80,8 @@ addStrings('en', {
   'users.please_sign_up_log_in': 'Please sign up or log in',
   'users.cannot_post': 'Sorry, you do not have permission to post at this time',
   'users.cannot_comment': 'Sorry, you do not have permission to comment at this time',
-  'users.subscribe': 'Subscribe to this user\'s posts',
-  'users.unsubscribe': 'Unsubscribe to this user\'s posts',
+  'users.subscribe': "Subscribe to this user's posts",
+  'users.unsubscribe': "Unsubscribe to this user's posts",
   'users.subscribed': 'You have subscribed to “{name}” posts.',
   'users.unsubscribed': 'You have unsubscribed from “{name}” posts.',
   'users.subscribers': 'Subscribers',
@@ -87,7 +89,7 @@ addStrings('en', {
   'users.delete_confirm': 'Delete this user?',
   'users.email_already_taken': 'This email is already taken: {value}',
 
-  'settings': 'Settings',
+  settings: 'Settings',
   'settings.json_message': 'Note: settings already provided in your <code>settings.json</code> file will be ' +
       'disabled.',
   'settings.edit': 'Edit Settings',
@@ -120,8 +122,8 @@ addStrings('en', {
   'settings.scoreUpdateInterval': 'Score Update Interval',
 
   'app.loading': 'Loading…',
-  'app.404': 'Sorry, we couldn\'t find what you were looking for.',
-  'app.missing_document': 'Sorry, we couldn\'t find the document you were looking for.',
+  'app.404': "Sorry, we couldn't find what you were looking for.",
+  'app.missing_document': "Sorry, we couldn't find the document you were looking for.",
   'app.powered_by': 'Built with Vulcan.js',
   'app.or': 'Or',
   'app.noPermission': 'Sorry, you do not have the permission to do this at this time.',
@@ -137,8 +139,8 @@ addStrings('en', {
   'datatable.edit': 'Edit',
   'datatable.search': 'Search',
 
-  'admin': 'Admin',
-  'notifications': 'Notifications',
+  admin: 'Admin',
+  notifications: 'Notifications',
 
   'errors.expectedType': 'Expected type {dataType} for field “{label}”, received “{value}” instead.',
   'errors.required': 'Field “{label}” is required.',
@@ -159,5 +161,4 @@ addStrings('en', {
   'errors.minNumberExclusive': '',
   'errors.maxNumberExclusive': '',
   'errors.keyNotInSchema': ''
-
 });

@@ -1,13 +1,16 @@
 import React from 'react';
-import { Input } from 'formsy-react-components';
-import { registerComponent } from 'meteor/vulcan:core';
+import Form from 'react-bootstrap/Form';
+import {Components, registerComponent} from 'meteor/vulcan:core';
 
-const Default = ({refFunction, inputProperties}) => {
+const Default = ({refFunction, inputProperties, itemProperties}) => {
   inputProperties.value = inputProperties.value || " ";
+
   return (
-    <Input {...inputProperties} ref={refFunction} type="text" />
-  )
+    <Components.FormItem {...inputProperties} {...itemProperties}>
+      <Form.Control {...inputProperties} ref={refFunction} type="text"/>
+    </Components.FormItem>
+  );
 }
 
-  registerComponent('FormComponentDefault', Default);
-  registerComponent('FormComponentText', Default);
+registerComponent('FormComponentDefault', Default);
+registerComponent('FormComponentText', Default);

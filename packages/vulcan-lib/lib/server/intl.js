@@ -47,7 +47,7 @@ class IntlDirective extends SchemaDirectiveVisitor {
   visitFieldDefinition(field, details) {
     const { resolve = defaultFieldResolver, name } = field; 
     field.resolve = async function (...args) {
-      const [ doc, graphQLArguments, context ] = args;
+      const [doc, graphQLArguments, context] = args;
       const fieldValue = await resolve.apply(this, args);
       const locale = graphQLArguments.locale || context.locale;
       const defaultLocale = getSetting('locale');
@@ -126,7 +126,7 @@ const migrateIntlFields = async (defaultLocale) => {
 
     }
   });
-}
+};
 
 Vulcan.migrateIntlFields = migrateIntlFields;
 
@@ -145,7 +145,7 @@ export const getHeaderLocale = (headers, userLocale) => {
   if (headers['cookie']) {
     const cookies = {};
     headers['cookie'].split('; ').forEach(c => { 
-      const cookieArray = c.split('=')
+      const cookieArray = c.split('=');
       cookies[cookieArray[0]] = cookieArray[1];
     });
     cookieLocale = cookies.locale;
@@ -178,4 +178,4 @@ export const getHeaderLocale = (headers, userLocale) => {
 
   return locale;
 
-}
+};
