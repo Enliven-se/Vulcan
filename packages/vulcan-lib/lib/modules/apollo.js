@@ -1,12 +1,34 @@
 import ApolloClient, { createNetworkInterface, createBatchingNetworkInterface } from 'apollo-client';
+import { ApolloLink } from 'apollo-link';
 import 'cross-fetch/polyfill';
 import { Meteor } from 'meteor/meteor';
 import { getSetting, registerSetting } from './settings.js';
 import { getFragmentMatcher } from './fragment_matcher.js';
 import { runCallbacks } from './callbacks.js';
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { HttpLink } from 'apollo-link-http';
+import { persistCache } from 'apollo-cache-persist';
 
+// import { createStateLink } from './apollo-common';
+// import watchedMutationLink from './links/watchedMutation';
+// import httpLink from './links/http';
+// import meteorAccountsLink from './links/meteor';
+// import errorLink from './links/error';
+
+import cache from './links/cache';
+// import ApolloClient from 'apollo-boost';
 registerSetting('graphQLendpointURL', '/graphql', 'GraphQL endpoint URL');
+// const cache = new InMemoryCache();
 
+// these links do not change once created
+// const staticLinks = [watchedMutationLink, errorLink, meteorAccountsLink, httpLink];
+
+if(Meteor.isClient){
+persistCache({
+  cache,
+  storage: window.localStorage,
+});
+}
 const defaultNetworkInterfaceConfig = {
   path: '/graphql', // default graphql server endpoint
   opts: { foo: 'bar' }, // additional fetch options like `credentials` or `headers`; note: for some reason when this is empty additional options can't be added
@@ -65,7 +87,7 @@ const createMeteorNetworkInterface = (givenConfig = {}) => {
             request.options.headers = new Headers();
           }
           request.options.headers = config.headers;
-          // if we're on the server and this request has been originated by a client 
+          // if we're on the server and this request has been originated by a client
           // (and not SSR) save the original headers
           if (config.headers && !config.headers.originalHeaders) {
             request.options.headers.originalHeaders = JSON.stringify(config.headers);
@@ -88,7 +110,7 @@ const createMeteorNetworkInterface = (givenConfig = {}) => {
           request.options.headers.Authorization = currentUserToken;
           next();
         }
-        
+
       },
     }]);
   }
@@ -97,14 +119,17 @@ const createMeteorNetworkInterface = (givenConfig = {}) => {
 };
 
 const meteorClientConfig = networkInterfaceConfig => {
-
+  // const stateLink = createStateLink({ cache });
   return {
+    // uri: Meteor.absoluteUrl('graphql'),
     ssrMode: Meteor.isServer,
     networkInterface: createMeteorNetworkInterface(networkInterfaceConfig),
     queryDeduplication: true, // http://dev.apollodata.com/core/network.html#query-deduplication
     addTypename: true,
     fragmentMatcher: getFragmentMatcher(),
-
+    link: new HttpLink(),
+    cache,
+    // link: ApolloLink.from([stateLink, ...staticLinks]),
     // Default to using Mongo _id, must use _id for queries.
     dataIdFromObject(result) {
       if (result._id && result.__typename) {
