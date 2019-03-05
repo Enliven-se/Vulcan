@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, mergeWithComponents } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
+import mergeWithComponents from '../modules/mergeWithComponents';
 
 // Replaceable layout
 const FormNestedObjectLayout = ({ hasErrors, label, content }) => (

@@ -15,11 +15,6 @@ import {
 
 import { RouterServer } from './router.jsx';
 
-//fix helmet when running tests
-if (Meteor.isPackageTest) {
-  Helmet.canUseDOM = false;
-}
-
 Meteor.startup(() => {
   // note: route defined here because it "shouldn't be removable"
   addRoute({name:'app.notfound', path:'*', componentName: 'Error404'});
@@ -54,7 +49,7 @@ Meteor.startup(() => {
     wrapperHook(req, res, appGenerator) {
       const { apolloClient, store } = getRenderContext();
       store.reload();
-      store.dispatch({ type: '@@nova/INIT' }); // the first dispatch will generate a newDispatch function from middleware
+      store.dispatch({ type: '@@nova/INIT' }) // the first dispatch will generate a newDispatch function from middleware
       const app = runCallbacks('router.server.wrapper', appGenerator(), { req, res, store, apolloClient });
       const locale = getHeaderLocale(req.headers );
       const appWithLocale = React.cloneElement(app, { locale });

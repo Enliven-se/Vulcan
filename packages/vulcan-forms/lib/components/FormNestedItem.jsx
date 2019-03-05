@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, mergeWithComponents } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import mergeWithComponents from '../modules/mergeWithComponents';
 
 const FormNestedItemLayout = ({ content, removeButton }) => (
   <div className="form-nested-item">
@@ -26,7 +27,7 @@ registerComponent({
 });
 
 const FormNestedItem = (
-  { nestedFields, name, path, removeItem, itemIndex, formComponents, hideRemove, ...props },
+  { nestedFields, name, path, removeItem, itemIndex, formComponents, ...props },
   { errors }
 ) => {
   const FormComponents = mergeWithComponents(formComponents);
@@ -45,7 +46,7 @@ const FormNestedItem = (
         );
       })}
       removeButton={
-        isArray && !hideRemove && [
+        isArray && [
           <div key="remove-button" className="form-nested-item-remove">
             <Components.Button
               className="form-nested-button"

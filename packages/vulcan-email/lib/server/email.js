@@ -4,7 +4,6 @@ import Juice from 'juice';
 import htmlToText from 'html-to-text';
 import Handlebars from 'handlebars';
 import { Utils, getSetting, registerSetting, runQuery, Strings, getString } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core is not loaded yet
-import { Email } from 'meteor/email';
 
 /*
 
@@ -49,7 +48,7 @@ VulcanEmail.getTemplate = templateName => {
     throw new Error(`Couldn't find email template named  “${templateName}”`);
   }
   return Handlebars.compile(VulcanEmail.templates[templateName], { noEscape: true, strict: true });
-};
+}
 
 VulcanEmail.buildTemplate = (htmlContent, data = {}, locale) => {
   const emailProperties = {
@@ -83,13 +82,13 @@ VulcanEmail.generateTextVersion = html => {
   });
 };
 
-VulcanEmail.send = (to, subject, html, text, throwErrors, cc, bcc, replyTo, headers, attachments) => {
+VulcanEmail.send = (to, subject, html, text, throwErrors, cc, bcc, replyTo, headers) => {
   // TODO: limit who can send emails
   // TODO: fix this error: Error: getaddrinfo ENOTFOUND
 
   if (typeof to === 'object') {
     // eslint-disable-next-line no-redeclare
-    var { to, cc, bcc, replyTo, subject, html, text, throwErrors, headers, attachments } = to;
+    var { to, cc, bcc, replyTo, subject, html, text, throwErrors, headers } = to;
   }
 
   const from = getSetting('defaultEmail', 'noreply@example.com');
@@ -103,18 +102,17 @@ VulcanEmail.send = (to, subject, html, text, throwErrors, cc, bcc, replyTo, head
 
   const email = {
     from: from,
-    to,
-    cc,
-    bcc,
-    replyTo,
-    subject,
-    headers,
-    text,
-    html,
-    attachments,
+    to: to,
+    cc: cc,
+    bcc: bcc,
+    replyTo: replyTo,
+    subject: subject,
+    headers: headers,
+    text: text,
+    html: html,
   };
 
-  const shouldSendEmail = process.env.NODE_ENV === 'production' || getSetting('enableDevelopmentEmails', false);
+  const shouldSendEmail = process.env.NODE_ENV === 'production' || getSetting('enableDevelopmentEmails', false)
 
   console.log(`//////// sending email${shouldSendEmail ? '' : ' (simulation)'}…`); // eslint-disable-line
   console.log('from: ' + from); // eslint-disable-line
@@ -155,9 +153,9 @@ VulcanEmail.build = async ({ emailName, variables, locale }) => {
   return { data, subject, html };
 };
 
-VulcanEmail.buildAndSend = async ({ to, cc, bcc, replyTo, emailName, variables, locale = getSetting('locale'), headers, attachments }) => {
+VulcanEmail.buildAndSend = async ({ to, cc, bcc, replyTo, emailName, variables, locale = getSetting('locale'), headers }) => {
   const email = await VulcanEmail.build({ to, emailName, variables, locale });
-  return VulcanEmail.send({ to, cc, bcc, replyTo, subject: email.subject, html: email.html, headers, attachments });
+  return VulcanEmail.send({ to, cc, bcc, replyTo, subject: email.subject, html: email.html, headers });
 };
 
 VulcanEmail.buildAndSendHTML = (to, subject, html) => VulcanEmail.send(to, subject, VulcanEmail.buildTemplate(html));

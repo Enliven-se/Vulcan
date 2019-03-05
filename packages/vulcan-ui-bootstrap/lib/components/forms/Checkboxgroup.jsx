@@ -1,12 +1,12 @@
 import React from 'react';
-import Form from 'react-bootstrap/Form';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Checkbox } from 'formsy-react-components';
+import { registerComponent } from 'meteor/vulcan:core';
 import without from 'lodash/without';
 import uniq from 'lodash/uniq';
 import intersection from 'lodash/intersection';
 
 // note: treat checkbox group the same as a nested component, using `path`
-const CheckboxGroupComponent = ({ refFunction, label, path, value, formType, updateCurrentValues, inputProperties, itemProperties }) => {
+const CheckboxGroupComponent = ({ refFunction, label, path, value, formType, updateCurrentValues, inputProperties }) => {
 
   const { options } = inputProperties;
 
@@ -21,32 +21,26 @@ const CheckboxGroupComponent = ({ refFunction, label, path, value, formType, upd
     }
   }
 
-  // note: get rid of the default onChange inherited from FormComponent
-  const { onChange, ...newInputProperties } = inputProperties; // eslint-disable-line no-unused-vars
-
   return (
-    <Components.FormItem {...newInputProperties} {...itemProperties}>
-      <div>
+    <div className="form-group row">
+      <label className="control-label col-sm-3">{label}</label>
+      <div className="col-sm-9">
         {options.map((option, i) => (
-          <Form.Check
+          <Checkbox
             layout="elementOnly"
             key={i}
-            {...newInputProperties}
+            {...inputProperties}
             label={option.label}
             value={value.includes(option.value)}
-            checked={!!value.includes(option.value)}
-            id={`${path}.${i}`}
-            path={`${path}.${i}`}
             ref={refFunction}
-            onChange={event => {
-              const isChecked = event.target.checked;
+            onChange={(name, isChecked) => {
               const newValue = isChecked ? [...value, option.value] : without(value, option.value);
               updateCurrentValues({ [path]: newValue });
             }}
           />
         ))}
       </div>
-    </Components.FormItem>
+    </div>
   );
 };
 

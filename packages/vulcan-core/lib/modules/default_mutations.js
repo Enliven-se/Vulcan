@@ -207,12 +207,11 @@ const registerCollectionCallbacks = (typeName, options) => {
   if (options.create) {
     registerCallback({
       name: `${typeName}.create.validate`,
-      iterator: { validationErrors: 'An array that can be used to accumulate validation errors' },
+      iterator: { document: 'The document being inserted' },
       properties: [
         { document: 'The document being inserted' },
         { currentUser: 'The current user' },
-        { collection: 'The collection the document belongs to' },
-        { context: 'The context of the mutation'},
+        { validationErrors: 'An object that can be used to accumulate validation errors' },
       ],
       runs: 'sync',
       returns: 'document',
@@ -249,13 +248,11 @@ const registerCollectionCallbacks = (typeName, options) => {
   if (options.update) {
     registerCallback({
       name: `${typeName}.update.validate`,
-      iterator: { validationErrors: 'An object that can be used to accumulate validation errors' },
+      iterator: { data: 'The client data' },
       properties: [
         { document: 'The document being edited' },
-        { data: 'The client data' },
         { currentUser: 'The current user' },
-        { collection: 'The collection the document belongs to' },
-        { context: 'The context of the mutation'},
+        { validationErrors: 'An object that can be used to accumulate validation errors' },
       ],
       runs: 'sync',
       returns: 'modifier',
@@ -299,12 +296,10 @@ const registerCollectionCallbacks = (typeName, options) => {
   if (options.delete) {
     registerCallback({
       name: `${typeName}.delete.validate`,
-      iterator: { validationErrors: 'An object that can be used to accumulate validation errors' },
+      iterator: { document: 'The document being removed' },
       properties: [
         { currentUser: 'The current user' },
-        { document: 'The document being removed' },
-        { collection: 'The collection the document belongs to'},
-        { context: 'The context of this mutation'}
+        { validationErrors: 'An object that can be used to accumulate validation errors' },
       ],
       runs: 'sync',
       returns: 'document',

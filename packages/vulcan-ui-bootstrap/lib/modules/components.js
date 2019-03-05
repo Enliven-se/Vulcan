@@ -1,4 +1,3 @@
-import '../components/forms/FormElement.jsx';
 import '../components/forms/Checkbox.jsx';
 import '../components/forms/Checkboxgroup.jsx';
 import '../components/forms/Date.jsx';
@@ -16,7 +15,6 @@ import '../components/forms/Url.jsx';
 import '../components/forms/StaticText.jsx';
 import '../components/forms/FormComponentInner.jsx';
 import '../components/forms/FormControl.jsx'; // note: only used by old accounts package, remove soon?
-import '../components/forms/FormItem.jsx';
 
 import '../components/ui/Button.jsx';
 import '../components/ui/Alert.jsx';

@@ -31,7 +31,7 @@ registerSetting('apolloServer.tracing', Meteor.isDevelopment, 'Tracing by Apollo
 
 // see https://github.com/apollographql/apollo-cache-control
 const engineApiKey = getSetting('apolloEngine.apiKey');
-const engineLogLevel = getSetting('apolloEngine.logLevel', 'INFO');
+const engineLogLevel = getSetting('apolloEngine.logLevel', 'INFO')
 const engineConfig = {
   apiKey: engineApiKey,
   // "origins": [
@@ -127,7 +127,7 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
   graphQLServer.use(compression());
 
   // GraphQL endpoint
-  graphQLServer.use(config.path, bodyParser.json({ limit: getSetting('apolloServer.jsonParserOptions.limit') }), graphqlExpress(async (req) => {
+  graphQLServer.use(config.path, bodyParser.json(), graphqlExpress(async (req) => {
     let options;
     let user = null;
 
@@ -203,10 +203,7 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
     const headers = req.renderContext.originalHeaders || req.headers;
 
     options.context.locale = getHeaderLocale(headers, user && user.locale);
-
-    if (headers.apikey && (headers.apikey === getSetting('vulcan.apiKey'))) {
-      options.context.currentUser = { isAdmin: true, isApiUser: true };
-    }
+    
     // console.log('// apollo_server.js isSSR?', !!req.renderContext.originalHeaders ? 'yes' : 'no');
     // console.log('// apollo_server.js headers:');
     // console.log(headers);

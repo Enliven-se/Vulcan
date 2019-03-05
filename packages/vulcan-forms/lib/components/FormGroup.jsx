@@ -2,7 +2,8 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Components, Utils } from 'meteor/vulcan:core';
 import classNames from 'classnames';
-import { registerComponent, mergeWithComponents } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
+import mergeWithComponents from '../modules/mergeWithComponents';
 
 const FormGroupHeader = ({ toggle, collapsed, label }) => (
   <div className="form-section-heading" onClick={toggle}>

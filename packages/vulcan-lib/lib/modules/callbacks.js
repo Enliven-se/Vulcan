@@ -1,12 +1,5 @@
-import { Meteor } from 'meteor/meteor';
-
 import { debug } from './debug.js';
 import { Utils } from './utils';
-
-/**
- * @summary Format callback hook names
- */
-export const formatHookName = hook => typeof hook === 'string' && hook.toLowerCase();
 
 /**
  * @summary A list of all registered callback hooks
@@ -36,19 +29,17 @@ export const registerCallback = function (callback) {
  */
 export const addCallback = function (hook, callback) {
 
-  const formattedHook = formatHookName(hook);
-
   if (!callback.name) {
     // eslint-disable-next-line no-console
-    console.log(`// Warning! You are adding an unnamed callback to ${formattedHook}. Please use the function foo () {} syntax.`);
+    console.log(`// Warning! You are adding an unnamed callback to ${hook}. Please use the function foo () {} syntax.`);
   }
 
   // if callback array doesn't exist yet, initialize it
-  if (typeof Callbacks[formattedHook] === 'undefined') {
-    Callbacks[formattedHook] = [];
+  if (typeof Callbacks[hook] === 'undefined') {
+    Callbacks[hook] = [];
   }
 
-  Callbacks[formattedHook].push(callback);
+  Callbacks[hook].push(callback);
 };
 
 /**
@@ -57,51 +48,45 @@ export const addCallback = function (hook, callback) {
  * @param {string} functionName - The name of the function to remove
  */
 export const removeCallback = function (hookName, callbackName) {
-  const formattedHook = formatHookName(hookName);
-  Callbacks[formattedHook] = _.reject(Callbacks[formattedHook], function (callback) {
+  Callbacks[hookName] = _.reject(Callbacks[hookName], function (callback) {
     return callback.name === callbackName;
   });
 };
 
 /**
  * @summary Successively run all of a hook's callbacks on an item
- * @param {String} hook - First argument: the name of the hook, or an array
+ * @param {String} hook - First argument: the name of the hook
  * @param {Object} item - Second argument: the post, comment, modifier, etc. on which to run the callbacks
  * @param {Any} args - Other arguments will be passed to each successive iteration
- * @param {Array} callbacks - Optionally, pass an array of callback functions instead of passing a hook name
  * @returns {Object} Returns the item after it's been through all the callbacks for this hook
  */
 export const runCallbacks = function () {
 
-  let hook, item, args, callbacks, formattedHook;
+  let hook, item, args;
   if (typeof arguments[0] === 'object' && arguments.length === 1) {
     const singleArgument = arguments[0];
     hook = singleArgument.name;
-    formattedHook = formatHookName(hook);
     item = singleArgument.iterator;
     args = singleArgument.properties;
-    // if callbacks option is passed used that, else use formatted hook name
-    callbacks = singleArgument.callbacks ? singleArgument.callbacks : Callbacks[formattedHook];
   } else {
     // OpenCRUD backwards compatibility
     // the first argument is the name of the hook or an array of functions
     hook = arguments[0];
-    formattedHook = formatHookName(hook);
     // the second argument is the item on which to iterate
     item = arguments[1];
     // successive arguments are passed to each iteration
     args = Array.prototype.slice.call(arguments).slice(2);
-    // if first argument is an array, use that as callbacks array; else use formatted hook name
-    callbacks = Array.isArray(hook) ? hook : Callbacks[formattedHook];
   }
 
   // flag used to detect the callback that initiated the async context
   let asyncContext = false;
-  
+
+  const callbacks = Array.isArray(hook) ? hook : Callbacks[hook];
+
   if (typeof callbacks !== 'undefined' && !!callbacks.length) { // if the hook exists, and contains callbacks to run
 
     const runCallback = (accumulator, callback) => {
-      debug(`\x1b[32m>> Running callback [${callback.name}] on hook [${formattedHook}]\x1b[0m`);
+      debug(`\x1b[32m>> Running callback [${callback.name}] on hook [${hook}]\x1b[0m`);
       const newArguments = [accumulator].concat(args);
 
       try {
@@ -109,7 +94,7 @@ export const runCallbacks = function () {
 
         // if callback is only supposed to run once, remove it
         if (callback.runOnce) {
-          removeCallback(formattedHook, callback.name);
+          removeCallback(hook, callback.name);
         }
 
         if (typeof result === 'undefined') {
@@ -122,7 +107,7 @@ export const runCallbacks = function () {
 
       } catch (error) {
         // eslint-disable-next-line no-console
-        console.log(`\x1b[31m// error at callback [${callback.name}] in hook [${formattedHook}]\x1b[0m`);
+        console.log(`\x1b[31m// error at callback [${callback.name}] in hook [${hook}]\x1b[0m`);
         // eslint-disable-next-line no-console
         console.log(error);
         if (error.break || error.data && error.data.break) {
@@ -136,7 +121,7 @@ export const runCallbacks = function () {
     return callbacks.reduce(function (accumulator, callback, index) {
       if (Utils.isPromise(accumulator)) {
         if (!asyncContext) {
-          debug(`\x1b[32m>> Started async context in hook [${formattedHook}] by [${callbacks[index-1] && callbacks[index-1].name}]\x1b[0m`);
+          debug(`\x1b[32m>> Started async context in hook [${hook}] by [${callbacks[index-1] && callbacks[index-1].name}]\x1b[0m`);
           asyncContext = true;
         }
         return new Promise((resolve, reject) => {
@@ -184,24 +169,17 @@ export const runCallbacksAsync = function () {
 
   const callbacks = Array.isArray(hook) ? hook : Callbacks[hook];
 
-  if (typeof callbacks !== 'undefined' && !!callbacks.length) {
-    const _runCallbacksAsync = () =>
-        Promise.all(
-            callbacks.map(callback => {
-                debug(`\x1b[32m>> Running async callback [${callback.name}] on hook [${hook}]\x1b[0m`);
-                return callback.apply(this, args);
-            }),
-        );
+  if (Meteor.isServer && typeof callbacks !== 'undefined' && !!callbacks.length) {
 
-    if (Meteor.isServer) {
-      // TODO: find out if we can safely use promises on the server, too - https://github.com/VulcanJS/Vulcan/pull/2065
-      return new Promise(async (resolve, reject) => {
-          Meteor.defer(function() {
-            _runCallbacksAsync().then(resolve).catch(reject);
-          });
+    // use defer to avoid holding up client
+    Meteor.defer(function () {
+      // run all post submit server callbacks on post object successively
+      callbacks.forEach(function (callback) {
+        debug(`\x1b[32m>> Running async callback [${callback.name}] on hook [${hook}]\x1b[0m`);
+        callback.apply(this, args);
       });
-    }
-    return _runCallbacksAsync();
+    });
+
   }
-  return [];
+
 };

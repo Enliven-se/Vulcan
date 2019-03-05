@@ -1,16 +1,12 @@
 import React from 'react';
 import { intlShape } from 'meteor/vulcan:i18n';
-import Form from 'react-bootstrap/Form';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Select } from 'formsy-react-components';
+import { registerComponent } from 'meteor/vulcan:core';
 
-const SelectMultipleComponent = ({ refFunction, inputProperties, itemProperties }, { intl }) => {
+const SelectMultipleComponent = ({refFunction, inputProperties, ...properties}, { intl }) => {
   inputProperties.multiple = true;
-
-  return (
-    <Components.FormItem {...inputProperties} {...itemProperties}>
-      <Form.Control as="select" {...inputProperties} ref={refFunction} />
-    </Components.FormItem>
-  );
+  
+  return <Select {...inputProperties} ref={refFunction}/>
 };
 
 SelectMultipleComponent.contextTypes = {

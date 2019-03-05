@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent } from 'meteor/vulcan:lib';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownItem from 'react-bootstrap/DropdownItem';
-import DropdownButton from 'react-bootstrap/DropdownButton';
+import Dropdown from 'react-bootstrap/lib/Dropdown';
+import MenuItem from 'react-bootstrap/lib/MenuItem';
+import DropdownButton from 'react-bootstrap/lib/DropdownButton';
 import { LinkContainer } from 'react-router-bootstrap';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 
@@ -46,9 +46,9 @@ const Item = ({ index, to, labelId, label, component, componentProps = {}, itemP
   }
 
   const item = (
-    <DropdownItem className="dropdown-item" eventKey={index} {...itemProps} {...rest}>
+    <MenuItem className="dropdown-item" eventKey={index} {...itemProps} {...rest}>
       {menuComponent}
-    </DropdownItem>
+    </MenuItem>
   );
 
   return to ? <LinkContainer to={to}>{item}</LinkContainer> : item;
@@ -64,10 +64,10 @@ Item.propTypes = {
   itemProps: PropTypes.object, // props for the <MenuItem/> component
 };
 
-const BootstrapDropdown = ({ label, labelId, trigger, menuItems, menuContents, variant = 'dropdown', buttonProps, ...dropdownProps }) => {
+const BootstrapDropdown = ({ label, labelId, trigger, menuItems, menuContents, variant = 'dropdown', ...dropdownProps }) => {
   const menuBody = menuContents ? menuContents : menuItems.map((item, index) => {
     if (item === 'divider') {
-      return <Dropdown.Divider key={index} />;
+      return <MenuItem divider key={index} />;
     } else {
       return <Node {...item} key={index} index={index} />;
     }
@@ -89,7 +89,7 @@ const BootstrapDropdown = ({ label, labelId, trigger, menuItems, menuContents, v
     } else {
       // else default to DropdownButton
       return (
-        <DropdownButton {...buttonProps} title={labelId ? <FormattedMessage id={labelId} /> : label} {...dropdownProps}>
+        <DropdownButton title={labelId ? <FormattedMessage id={labelId} /> : label} {...dropdownProps}>
           {menuBody}
         </DropdownButton>
       );
@@ -104,7 +104,6 @@ BootstrapDropdown.propTypes = {
   menuContents: PropTypes.object, // a component specifying the menu contents
   menuItems: PropTypes.array, // an array of menu items, used if menuContents is not provided
   variant: PropTypes.string, // dropdown (default) or flat
-  buttonProps: PropTypes.object, // props specific to the dropdown button
 };
 
 registerComponent('Dropdown', BootstrapDropdown);

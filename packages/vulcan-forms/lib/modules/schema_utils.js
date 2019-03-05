@@ -2,8 +2,7 @@
  * Schema converter/getters
  */
 import Users from 'meteor/vulcan:users';
-import _filter from 'lodash/filter';
-import _keys from 'lodash/keys';
+import _ from 'lodash';
 
 /* getters */
 // filter out fields with "." or "$"
@@ -34,7 +33,7 @@ export const getUpdateableFields = schema => {
  * @param {Object} user – the user for which to check field permissions
  */
 export const getInsertableFields = function(schema, user) {
-  const fields = _filter(_keys(schema), function(fieldName) {
+  const fields = _.filter(_.keys(schema), function(fieldName) {
     var field = schema[fieldName];
     return Users.canCreateField(user, field);
   });

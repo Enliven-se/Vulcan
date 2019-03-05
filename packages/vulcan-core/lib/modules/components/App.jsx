@@ -17,6 +17,8 @@ import { withApollo } from 'react-apollo';
 import { withCookies } from 'react-cookie';
 import moment from 'moment';
 
+const DummyErrorCatcher = ({ children }) => children;
+
 class App extends PureComponent {
   constructor(props) {
     super(props);
@@ -112,7 +114,7 @@ class App extends PureComponent {
     const LayoutComponent = currentRoute.layoutName ? Components[currentRoute.layoutName] : Components.Layout;
 
     // if defined, use ErrorCatcher component to wrap layout contents
-    const ErrorCatcher = Components.ErrorCatcher ? Components.ErrorCatcher : Components.Dummy;
+    const ErrorCatcher = Components.ErrorCatcher ? Components.ErrorCatcher : DummyErrorCatcher;
 
     return (
       <IntlProvider locale={this.getLocale()} key={this.getLocale()} messages={Strings[this.getLocale()]}>
@@ -123,7 +125,7 @@ class App extends PureComponent {
             {this.props.currentUserLoading ? (
               <Components.Loading />
             ) : this.props.children ? (
-              <ErrorCatcher>{this.props.children}</ErrorCatcher>
+              <ErrorCatcher siteData={this.props.siteData}>{this.props.children}</ErrorCatcher>
             ) : (
               <Components.Welcome />
             )}

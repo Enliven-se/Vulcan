@@ -1,4 +1,4 @@
-import '../components/DebugLayout.jsx';
+import '../components/AdminLayout.jsx';
 
 import '../components/Emails.jsx';
 import '../components/Groups.jsx';
