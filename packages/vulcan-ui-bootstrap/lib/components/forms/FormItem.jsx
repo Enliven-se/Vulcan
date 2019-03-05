@@ -5,31 +5,13 @@ Layout for a single form item
 */
 
 import React from 'react';
-import Form from 'react-bootstrap/lib/Form';
-import Row from 'react-bootstrap/lib/Row';
-import Col from 'react-bootstrap/lib/Col';
-import {registerComponent} from 'meteor/vulcan:core';
+import Form from 'react-bootstrap/Form';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import { registerComponent } from 'meteor/vulcan:core';
 
-const FormItem = ({
-  path,
-  label,
-  children,
-  beforeInput,
-  afterInput,
-  layout = 'horizontal',
-  ...rest
-}) => {
-  if (layout === 'inputOnly' || !label) { // input only layout
-    return (
-      <Form.Group controlId={path} {...rest}>
-        {beforeInput}
-        {children}
-        {afterInput}
-      </Form.Group>
-    );
-  } else if (layout === 'vertical') { // vertical layout
-    return <div>TODO</div>;
-  } else { // horizontal layout (default)
+const FormItem = ({ path, label, children, beforeInput, afterInput, ...rest }) => {
+  if (label) {
     return (
       <Form.Group as={Row} controlId={path} {...rest}>
         <Form.Label column sm={3}>
@@ -40,6 +22,14 @@ const FormItem = ({
           {children}
           {afterInput}
         </Col>
+      </Form.Group>
+    );
+  } else {
+    return (
+      <Form.Group controlId={path} {...rest}>
+        {beforeInput}
+        {children}
+        {afterInput}
       </Form.Group>
     );
   }

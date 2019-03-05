@@ -1,10 +1,10 @@
 import React from 'react';
-import Form from 'react-bootstrap/lib/Form';
-import {Components, registerComponent} from 'meteor/vulcan:core';
+import Form from 'react-bootstrap/Form';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 
-const EmailComponent = ({refFunction, inputProperties, itemProperties}) => (
+const EmailComponent = ({ refFunction, inputProperties, itemProperties }) => (
   <Components.FormItem {...inputProperties} {...itemProperties}>
-    <Form.Control {...inputProperties} ref={refFunction} type="email"/>
+    <Form.Control {...inputProperties} ref={refFunction} type="email" />
   </Components.FormItem>
 );
 

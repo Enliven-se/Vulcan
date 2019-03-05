@@ -1,25 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {registerComponent} from 'meteor/vulcan:lib';
-import Dropdown from 'react-bootstrap/lib/Dropdown';
-import DropdownButton from 'react-bootstrap/lib/DropdownButton';
-import {LinkContainer} from 'react-router-bootstrap';
-import {FormattedMessage} from 'meteor/vulcan:i18n';
+import { registerComponent } from 'meteor/vulcan:lib';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownItem from 'react-bootstrap/DropdownItem';
+import DropdownButton from 'react-bootstrap/DropdownButton';
+import { LinkContainer } from 'react-router-bootstrap';
+import { FormattedMessage } from 'meteor/vulcan:i18n';
 
 /*
 
 A node contains a menu item, and optionally a list of child items
 
 */
-const Node = ({
-  childrenItems,
-  ...rest
-}) => {
+const Node = ({ childrenItems, ...rest }) => {
   return (
     <div className="menu-node">
-      <Item {...rest}/> {childrenItems && !!childrenItems.length && (
-        <div className="menu-node-children">{childrenItems.map((item, index) => <Item key={index} {...item}/>)}</div>
-      )}
+      <Item {...rest} />
+      {childrenItems &&
+        !!childrenItems.length && (
+          <div className="menu-node-children">{childrenItems.map((item, index) => <Item key={index} {...item} />)}</div>
+        )}
     </div>
   );
 };
@@ -34,39 +34,24 @@ Note: `rest` is used to ensure auto-generated props from parent dropdown
 components are properly passed down to MenuItem
 
 */
-const Item = ({
-  index,
-  to,
-  labelId,
-  label,
-  component,
-  componentProps = {},
-  itemProps,
-  ...rest
-}) => {
+const Item = ({ index, to, labelId, label, component, componentProps = {}, itemProps, ...rest }) => {
   let menuComponent;
 
   if (component) {
     menuComponent = React.cloneElement(component, componentProps);
   } else if (labelId) {
-    menuComponent = <FormattedMessage id={labelId}/>;
+    menuComponent = <FormattedMessage id={labelId} />;
   } else {
     menuComponent = <span>{label}</span>;
   }
 
   const item = (
-    <Dropdown.Item
-      className="dropdown-item"
-      eventKey={index}
-      {...itemProps}
-      {...rest}>
+    <DropdownItem className="dropdown-item" eventKey={index} {...itemProps} {...rest}>
       {menuComponent}
-    </Dropdown.Item>
+    </DropdownItem>
   );
 
-  return to
-    ? <LinkContainer to={to}>{item}</LinkContainer>
-    : item;
+  return to ? <LinkContainer to={to}>{item}</LinkContainer> : item;
 };
 
 Item.propTypes = {
@@ -79,28 +64,17 @@ Item.propTypes = {
   itemProps: PropTypes.object, // props for the <MenuItem/> component
 };
 
-const BootstrapDropdown = ({
-  label,
-  labelId,
-  trigger,
-  menuItems,
-  menuContents,
-  variant = 'dropdown',
-  buttonProps,
-  ...dropdownProps
-}) => {
-  const menuBody = menuContents
-    ? menuContents
-    : menuItems.map((item, index) => {
-      if (item === 'divider') {
-        return <Dropdown.Divider key={index}/>;
-      } else {
-        return <Node {...item} key={index} index={index}/>;
-      }
-    });
+const BootstrapDropdown = ({ label, labelId, trigger, menuItems, menuContents, variant = 'dropdown', buttonProps, ...dropdownProps }) => {
+  const menuBody = menuContents ? menuContents : menuItems.map((item, index) => {
+    if (item === 'divider') {
+      return <Dropdown.Divider key={index} />;
+    } else {
+      return <Node {...item} key={index} index={index} />;
+    }
+  });
 
   if (variant === 'flat') {
-
+    
     return menuBody;
 
   } else {
@@ -115,12 +89,7 @@ const BootstrapDropdown = ({
     } else {
       // else default to DropdownButton
       return (
-        <DropdownButton
-          {...buttonProps}
-          title={labelId
-          ? <FormattedMessage id={labelId}/>
-          : label}
-          {...dropdownProps}>
+        <DropdownButton {...buttonProps} title={labelId ? <FormattedMessage id={labelId} /> : label} {...dropdownProps}>
           {menuBody}
         </DropdownButton>
       );
