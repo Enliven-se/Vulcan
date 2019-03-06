@@ -21,7 +21,7 @@ class Flash extends PureComponent {
   }
 
   getProperties = () => {
-    const errorObject = this.props.message;
+    const errorObject = this.props.message.content;
     if (typeof errorObject === 'string') {
       // if error is a string, use it as message
       return {
