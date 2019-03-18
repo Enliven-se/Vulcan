@@ -732,6 +732,42 @@ export class AccountsLoginFormInner extends TrackerComponent {
       options.forceApprovalPrompt = Accounts.ui._options.forceApprovalPrompt[serviceName];
 
     this.clearMessages();
+
+    if (Meteor.isCordova && serviceName.toLowerCase() == 'google') {
+      Meteor.cordova_g_plus({
+        cordova_g_plus: true,
+        profile: ['email', 'email_verified', 'gender', 'locale', 'name', 'picture'],
+        webClientId: navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? '582342211390-85buoivqo687qibki1leqr4093huhua8.apps.googleusercontent.com' : '917161447825-aa48of49i97rbppra24b0kcuvoahqvq9.apps.googleusercontent.com'
+      }, (error, result) => {
+        if (error) {
+              // error handling code
+          alert(error);
+        } else {
+          onSubmitHook(error, formState);
+          if (error) {
+              // eslint-disable-next-line no-console
+            //console.log(error);
+            if (error instanceof Accounts.LoginCancelledError) {
+                // do nothing
+            } else {
+              const errorId = `accounts.error_${error.reason.toLowerCase().replace(/ /g, '_')}`;
+              if (self.context.intl.formatMessage({ id: errorId })) {
+                self.showMessage(errorId);
+              } else {
+                self.showMessage('accounts.error_unknown');
+              }
+            }
+          } else {
+            self.props.handlers.switchToProfile();
+              // this.setState({ formState: STATES.PROFILE });
+            self.clearDefaultFieldValues();
+            loginResultCallback(() => {
+              Meteor.setTimeout(() => this.state.onSignedInHook(this.props), 100);
+            });
+          }
+        }
+      });
+    } else {
     loginWithService(options, (error) => {
       onSubmitHook(error,formState);
       if (error) {
@@ -756,6 +792,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
         });
       }
     });
+  }
 
   }
 
