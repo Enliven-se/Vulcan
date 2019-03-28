@@ -12,6 +12,7 @@ export const getSourceVersion = () => {
   try {
     return (
       process.env.SOURCE_VERSION ||
+      process.env.GALAXY_APP_VERSION_ID ||
       childProcess
         .execSync('git rev-parse HEAD')
         .toString()
