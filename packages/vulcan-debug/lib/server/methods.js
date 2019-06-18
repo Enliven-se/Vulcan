@@ -1,45 +1,60 @@
-// import VulcanEmail from 'meteor/vulcan:email';
-// import Users from 'meteor/vulcan:users';
-// import { getSetting, registerSetting, Utils } from 'meteor/vulcan:lib';
+import VulcanEmail from 'meteor/vulcan:email';
+import Users from 'meteor/vulcan:users';
+import { getSetting, registerSetting, Utils } from 'meteor/vulcan:lib';
 
-// registerSetting('defaultEmail');
+registerSetting('defaultEmail');
 
-// Meteor.methods({
-//   "email.test": function (emailName) {
+// const _is_admin = () => Users.isAdminById(this.userId);
+const _is_admin = () => getSetting('enableDevelopmentEmails', false);
 
-//     const email = VulcanEmail.emails[emailName];
+Meteor.methods({
+  "email.test": function (emailName) {
 
-//     if(Users.isAdminById(this.userId)){
+    // console.log(`######## email.test ${emailName}`);
+    const email = VulcanEmail.emails[emailName];
 
-//       console.log("// testing email ["+emailName+"]"); // eslint-disable-line
-//       let html, properties;
+    // console.log(`######## email.test`, VulcanEmail.emails[emailName]);
 
-//       // if email has a custom way of generating its HTML, use it
-//       if (typeof email.getTestHTML !== "undefined") {
+    if(_is_admin()){
 
-//         html = email.getTestHTML.bind(email)();
+      console.log("// testing email [" + emailName + "]", email); // eslint-disable-line
+      let html, properties;
 
-//       } else {
+      // if email has a custom way of generating its HTML, use it
+      if (typeof email.getTestHTML !== "undefined") {
 
-//         // else get test object (sample post, comment, user, etc.)
-//         const testObject = email.getTestObject();
-//         // get test object's email properties
-//         properties = email.getProperties(testObject);
+        html = email.getTestHTML.bind(email)();
 
-//         // then apply email template to properties, and wrap it with buildTemplate
-//         html = VulcanEmail.buildTemplate(VulcanEmail.getTemplate(email.template)(properties));
+        // console.log(`######## email.test: html`, html);
+      } else {
 
-//       }
+        // console.log(`######## email.test: email`, email);
 
-//       // get subject
-//       const subject = "[Test] " + email.subject.bind(email)(properties);
+        // else get test object (sample post, comment, user, etc.)
+        const testObject = email.getTestObject();
 
-//       VulcanEmail.send (getSetting('defaultEmail'), subject, html)
+        console.log(`######## email.test: email.template`, email.template);
 
-//       return subject;
+        // get test object's email properties
+        properties = email.getProperties(testObject);
 
-//     } else {
-//       throw new Error(Utils.encodeIntlError({id: "app.noPermission"}));
-//     }
-//   }
-// });
+        console.log(`######## email.test: properties`, VulcanEmail.getTemplate(email.template));
+
+        // then apply email template to properties, and wrap it with buildTemplate
+        html = VulcanEmail.buildTemplate(VulcanEmail.getTemplate(email.template)(properties));
+
+        console.log(`######## email.test: html2`, html);
+}
+
+      // get subject
+      const subject = "[Test] " + email.subject.bind(email)(properties);
+
+      VulcanEmail.send (getSetting('defaultEmail'), subject, html)
+
+      return subject;
+
+    } else {
+      throw new Error(Utils.encodeIntlError({id: "app.noPermission"}));
+    }
+  }
+});

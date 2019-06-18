@@ -17,18 +17,22 @@ class Email extends PureComponent {
     this.setState({loading: true});
 
     // TODO fix this
-    // Actions.call("email.test", this.props.name, (error, result) => {
-    //   this.setState({loading: false});
-    //   if (error) {
-    //     Messages.flash(error.message, "error");
-    //   } else {
-    //     Messages.flash(`Test email sent (“${result}”).`, "success");
-    //   }
-    // });
+    try {
+      Meteor.call("email.test", this.props.name, (error, result) => {
+        this.setState({ loading: false });
+        if (error) {
+          console.error(error.message);
+        } else {
+          console.log(`Test email sent (“${result}”).`);
+        }
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   render() {
-    
+
     const { email, name } = this.props;
 
     return (
@@ -79,7 +83,7 @@ const Emails = (/* props*/) => {
         </table>
 
       </div>
-    
+
     </div>
   )
 };

@@ -44,9 +44,11 @@ VulcanEmail.addTemplates = templates => {
 };
 
 VulcanEmail.getTemplate = templateName => {
+  // console.log(`looking for template: ${templateName}`, VulcanEmail.templates);
   if (!VulcanEmail.templates[templateName]) {
     throw new Error(`Couldn't find email template named  “${templateName}”`);
   }
+  console.log(`found template: ${templateName}`, Handlebars.compile(VulcanEmail.templates[templateName]));
   return Handlebars.compile(VulcanEmail.templates[templateName], { noEscape: true, strict: true });
 }
 
