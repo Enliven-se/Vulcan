@@ -48,8 +48,13 @@ VulcanEmail.getTemplate = templateName => {
     if (!VulcanEmail.templates[templateName]) {
         throw new Error(`Couldn't find email template named  “${templateName}”`);
     }
-    // console.log(`found template: ${templateName}`, Handlebars.compile(VulcanEmail.templates[templateName]));
-    return Handlebars.compile(VulcanEmail.templates[templateName], { noEscape: true, strict: true });
+    console.log(`found template: ${templateName}`);
+    try {
+      return Handlebars.compile(VulcanEmail.templates[templateName], { noEscape: true, strict: true });
+    } catch (error) {
+      console.log('// error while sending email:'); // eslint-disable-line
+      console.log(error); // eslint-disable-line
+    }
 }
 
 VulcanEmail.buildTemplate = (htmlContent, data = {}, locale) => {
@@ -150,7 +155,13 @@ VulcanEmail.build = async({ emailName, variables, locale }) => {
     data.__ = Strings[locale];
     data.locale = locale;
 
-    const html = VulcanEmail.buildTemplate(VulcanEmail.getTemplate(email.template)(data), data, locale);
+    let html = null;
+
+    try {
+      html = VulcanEmail.buildTemplate(VulcanEmail.getTemplate(email.template)(data), data, locale);
+    } catch (error) {
+      console.log(error);
+    }
 
     return { data, subject, html };
 };
