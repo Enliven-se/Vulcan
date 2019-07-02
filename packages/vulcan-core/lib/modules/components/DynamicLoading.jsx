@@ -7,7 +7,14 @@ const DynamicLoading = ({ isLoading, pastDelay, error }) => {
   } else if (error && !isLoading) {
     // eslint-disable-next-line no-console
     console.log(error);
-    return <p>Error!</p>;
+    return (
+      <div className="text-warning large well">
+          <p>Error!</p>
+          <div className="small error">
+            <code>{JSON.stringify(error)}</code>
+          </div>
+      </div>
+    );
   } else {
     return null;
   }
