@@ -52,7 +52,7 @@ VulcanEmail.getTemplate = templateName => {
     try {
       return Handlebars.compile(VulcanEmail.templates[templateName], { noEscape: true, strict: true });
     } catch (error) {
-      console.log('// error while sending email:'); // eslint-disable-line
+      console.log(`// error while running getTemplate: ${templateName}`); // eslint-disable-line
       console.log(error); // eslint-disable-line
     }
 }
@@ -142,33 +142,46 @@ VulcanEmail.send = (to, subject, html, text, throwErrors, cc, bcc, replyTo, head
     return email;
 };
 
+VulcanEmail.getData = async({ email, variables = {}, locale = {}}) => {
+  const result = email.query ? await runQuery(email.query, variables, { locale }) : { data: {} };
+
+  console.log(`######## VulcanEmail.getData: result`, result);
+
+  // if email has a data() function, merge its return value with results from the query
+  const data = email.data ? { ...result.data, ...email.data({ data: result.data, variables, locale }) } : result.data;
+
+  const subject = typeof email.subject === 'function' ? email.subject({ data, variables, locale }) : email.subject;
+
+  data.__ = Strings[locale];
+  data.locale = locale;
+  return { data, subject };
+};
+
 VulcanEmail.build = async({ emailName, variables, locale }) => {
     // execute email's GraphQL query
     const email = VulcanEmail.emails[emailName];
-    const result = email.query ? await runQuery(email.query, variables, { locale }) : { data: {} };
 
-    // if email has a data() function, merge its return value with results from the query
-    const data = email.data ? {...result.data, ...email.data({ data: result.data, variables, locale }) } : result.data;
-
-    const subject = typeof email.subject === 'function' ? email.subject({ data, variables, locale }) : email.subject;
-
-    data.__ = Strings[locale];
-    data.locale = locale;
+    const { data, subject } = await VulcanEmail.getData({ email, variables, locale});
 
     let html = null;
 
     try {
       html = VulcanEmail.buildTemplate(VulcanEmail.getTemplate(email.template)(data), data, locale);
     } catch (error) {
-      console.log(error);
+      console.log(`// error while running VulcanEmail.build: ${emailName}`); // eslint-disable-line
+      console.log(error); // eslint-disable-line
     }
 
     return { data, subject, html };
 };
 
 VulcanEmail.buildAndSend = async({ to, cc, bcc, replyTo, emailName, variables, locale = getSetting('locale'), headers }) => {
+    console.log(`// running VulcanEmail.buildAndSend: ${emailName}`);
     const email = await VulcanEmail.build({ to, emailName, variables, locale });
     return VulcanEmail.send({ to, cc, bcc, replyTo, subject: email.subject, html: email.html, headers });
 };
 
-VulcanEmail.buildAndSendHTML = (to, subject, html) => VulcanEmail.send(to, subject, VulcanEmail.buildTemplate(html));
+VulcanEmail.buildAndSendHTML = (to, subject, html) => {
+  console.log(`// running VulcanEmail.buildAndSendHTML`);
+  return VulcanEmail.send(to, subject, VulcanEmail.buildTemplate(html));
+}
