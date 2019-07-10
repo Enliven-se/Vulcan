@@ -33,7 +33,7 @@ registerSetting('apolloServer.tracing', Meteor.isDevelopment, 'Tracing by Apollo
 const engineApiKey = getSetting('apolloEngine.apiKey');
 const engineLogLevel = getSetting('apolloEngine.logLevel', 'INFO')
 const engineConfig = {
-  apiKey: engineApiKey,
+  // apiKey: engineApiKey,
   // "origins": [
   //   {
   //     "http": {
@@ -122,7 +122,7 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
 
   // cookies
   graphQLServer.use(cookiesMiddleware());
-  
+
   // compression
   graphQLServer.use(compression());
 
@@ -159,7 +159,7 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
     // console.log('// apollo_server.js req.renderContext');
     // console.log(req.renderContext);
     // console.log('\n\n');
-    
+
     // Get the token from the header
     if (req.headers.authorization) {
       const token = req.headers.authorization;
@@ -186,7 +186,7 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
         }
       }
     }
-    
+
     //add the headers to the context
     options.context.headers = req.headers;
 
@@ -203,7 +203,7 @@ const createApolloServer = (givenOptions = {}, givenConfig = {}) => {
     const headers = req.renderContext.originalHeaders || req.headers;
 
     options.context.locale = getHeaderLocale(headers, user && user.locale);
-    
+
     // console.log('// apollo_server.js isSSR?', !!req.renderContext.originalHeaders ? 'yes' : 'no');
     // console.log('// apollo_server.js headers:');
     // console.log(headers);
