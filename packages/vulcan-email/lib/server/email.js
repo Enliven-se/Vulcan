@@ -48,7 +48,7 @@ VulcanEmail.getTemplate = templateName => {
     if (!VulcanEmail.templates[templateName]) {
         throw new Error(`Couldn't find email template named  “${templateName}”`);
     }
-    console.log(`found template: ${templateName}`);
+    // console.log(`found template: ${templateName}`);
     try {
       return Handlebars.compile(VulcanEmail.templates[templateName], { noEscape: true, strict: true });
     } catch (error) {
@@ -145,7 +145,7 @@ VulcanEmail.send = (to, subject, html, text, throwErrors, cc, bcc, replyTo, head
 VulcanEmail.getData = async({ email, variables = {}, locale = {}}) => {
   const result = email.query ? await runQuery(email.query, variables, { locale }) : { data: {} };
 
-  console.log(`######## VulcanEmail.getData: result`, result);
+  // console.log(`######## VulcanEmail.getData: result`, JSON.stringify(result));
 
   // if email has a data() function, merge its return value with results from the query
   const data = email.data ? { ...result.data, ...email.data({ data: result.data, variables, locale }) } : result.data;
