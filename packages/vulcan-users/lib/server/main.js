@@ -6,3 +6,4 @@ import './callbacks.js';
 export {default as createUser} from './create_user.js';
 export * from '../modules/index.js';
 export {default} from '../modules/index.js';
+export const newsletter_subs = new Mongo.Collection("newsletter_subs");

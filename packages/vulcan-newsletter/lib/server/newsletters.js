@@ -1,11 +1,12 @@
-import Users from 'meteor/vulcan:users';
+import Users, {newsletter_subs} from 'meteor/vulcan:users';
 import VulcanEmail from 'meteor/vulcan:email';
 import { SyncedCron } from 'meteor/percolatestudio:synced-cron';
 import Newsletters from '../modules/collection.js';
+import {mailChimpUsers} from './fixure';
 import { Utils, getSetting, registerSetting, runCallbacksAsync, Connectors } from 'meteor/vulcan:core';
-
 registerSetting('newsletter.provider', 'mailchimp', 'Newsletter provider');
 registerSetting('defaultEmail', null, 'Email newsletter confirmations will be sent to');
+
 
 const provider = getSetting('newsletter.provider', 'mailchimp'); // default to MailChimp
 
@@ -36,6 +37,39 @@ send
  * @param {Object} user
  * @param {Boolean} confirm
  */
+
+Meteor.methods({
+  importNewsLetter(){
+    console.log("mailchimpUsers====>", mailChimpUsers.length);
+    
+    mailChimpUsers.forEach((user)=>{
+      const findUser = Meteor.users.findOne({ "email": user["Email Address"] });
+      if(findUser){
+        Meteor.users.update({_id: findUser._id}, {$set: { newsletter_subscribeToNewsletter: true }});
+      } else {
+        if(!newsletter_subs.findOne({email: user["Email Address"]})){
+        newsletter_subs.insert({email: user["Email Address"]})
+        }
+      }
+    })
+  }
+})
+
+const newsletterUpdate = (email, isSubscribe) => {
+  const result = Meteor.users.findOne({email})
+  console.log("result===>", result);
+  if(result){
+    console.log("email update=====>");    
+    Connectors.update(Users, result._id, {$set: {newsletter_subscribeToNewsletter: isSubscribe}});
+  } else {
+    console.log("email insert=====>");
+    if(isSubscribe)    
+      newsletter_subs.insert({email})
+    else
+      newsletter_subs.remove({email})
+  }
+}
+
 Newsletters.subscribeUser = async (user, confirm = false) => {
   const email = Users.getEmail(user);
   if (!email) {
@@ -44,9 +78,11 @@ Newsletters.subscribeUser = async (user, confirm = false) => {
 
   // eslint-disable-next-line no-console
   console.log(`// Adding ${email} to ${provider} list…`);
-  const result = Newsletters[provider].subscribe(email, confirm);
+  // const result = Newsletters[provider].subscribe(email, confirm);
   // eslint-disable-next-line no-console
   if (result) {console.log ('-> added')}
+  newsletterUpdate(email, true)
+  
   await Connectors.update(Users, user._id, {$set: {newsletter_subscribeToNewsletter: true}});
 }
 
@@ -56,10 +92,12 @@ Newsletters.subscribeUser = async (user, confirm = false) => {
  */
 Newsletters.subscribeEmail = (email, confirm = false) => {
   // eslint-disable-next-line no-console
-  console.log(`// Adding ${email} to ${provider} list…`);
-  const result = Newsletters[provider].subscribe(email, confirm);
+  console.log(`///// Adding ${email} to ${provider} list…`);
+  // const result = Newsletters[provider].subscribe(email, confirm);
   // eslint-disable-next-line no-console
-  if (result) {console.log ('-> added')}
+  // if (result) {console.log ('-> added')}
+  newsletterUpdate(email, true)
+ 
 }
 
 
@@ -75,8 +113,9 @@ Newsletters.unsubscribeUser = async (user) => {
 
   // eslint-disable-next-line no-console
   console.log('// Removing "'+email+'" from list…');
-  Newsletters[provider].unsubscribe(email);
-  await Connectors.update(Users, user._id, {$set: {newsletter_subscribeToNewsletter: false}}); 
+  //Newsletters[provider].unsubscribe(email);
+  // await Connectors.update(Users, user._id, {$set: {newsletter_subscribeToNewsletter: false}}); 
+  newsletterUpdate(email, false)
 }
 
 /**
@@ -86,7 +125,8 @@ Newsletters.unsubscribeUser = async (user) => {
 Newsletters.unsubscribeEmail = (email) => {
   // eslint-disable-next-line no-console
   console.log('// Removing "'+email+'" from list…');
-  Newsletters[provider].unsubscribe(email);
+  // Newsletters[provider].unsubscribe(email);
+  newsletterUpdate(email, false)
 }
 
 /**

@@ -1,9 +1,10 @@
 import Users from '../modules/index.js';
 import { runCallbacks, runCallbacksAsync, Utils, debug, debugGroup, debugGroupEnd } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
 import clone from 'lodash/clone';
-
+import {newsletter_subs} from './main';
 // TODO: the following should use async/await, but async/await doesn't seem to work with Accounts.onCreateUser
 function onCreateUserCallback(options, user) {
+  
   const schema = Users.simpleSchema()._schema;
 
   delete options.password; // we don't need to store the password digest
@@ -46,6 +47,7 @@ function onCreateUserCallback(options, user) {
   }
 
   if (user.services) {
+   
     const service = _.keys(user.services)[0];
 
     let email = user.services[service].email;
@@ -69,7 +71,6 @@ function onCreateUserCallback(options, user) {
       }
       return user;
     }
-
        // see if any existing user has this email address, otherwise create new
     let existingUser = Meteor.users.findOne({ 'emails.address': email });
     if (!existingUser) {
@@ -81,6 +82,11 @@ function onCreateUserCallback(options, user) {
       if (doesntExist) {
         user = runCallbacks('users.new.sync', user);
         runCallbacksAsync('users.new.async', user);
+
+        if(newsletter_subs.findOne({email})){
+          user.newsletter_subscribeToNewsletter = true;
+          newsletter_subs.remove({email});
+        }
 
       // check if all required fields have been filled in. If so, run profile completion callbacks
         if (Users.hasCompletedProfile(user)) {
@@ -106,6 +112,11 @@ function onCreateUserCallback(options, user) {
       existingUser.username = user.username;
     }
 
+    if(newsletter_subs.findOne({email})){
+      existingUser.newsletter_subscribeToNewsletter = true;
+      newsletter_subs.remove({email});
+    }
+
     Meteor.users.remove({ _id: existingUser._id }); // remove existing record
 
     existingUser = runCallbacks('users.new.sync', existingUser);
@@ -118,7 +129,6 @@ function onCreateUserCallback(options, user) {
 
     return existingUser;                  // record will be re-inserted
   } else {
-
     user = runCallbacks('users.new.sync', user);
     runCallbacksAsync('users.new.async', user);
 
