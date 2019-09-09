@@ -1,12 +1,13 @@
-import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { withRouter } from 'react-router';
 import { intlShape } from 'meteor/vulcan:i18n';
 import { STATES } from '../../helpers.js';
 
 class AccountsResetPassword extends PureComponent {
   componentDidMount() {
-    const token = this.props.params.token;
+    const token = this.props.match.params.token;
     Accounts._loginButtonsSession.set('resetPasswordToken', token);
   }
 
@@ -20,7 +21,7 @@ class AccountsResetPassword extends PureComponent {
     } else {
       return (
         <div className='password-reset-form'>
-          <div>{this.context.intl.formatMessage({id: 'accounts.info_password_changed'})}!</div>
+          <div>{this.context.intl.formatMessage({id: 'accounts.info_password_changed'})}</div>
         </div>
       );
     }
@@ -29,13 +30,13 @@ class AccountsResetPassword extends PureComponent {
 
 AccountsResetPassword.contextTypes = {
   intl: intlShape
-}
+};
 
 AccountsResetPassword.propsTypes = {
   currentUser: PropTypes.object,
-  params: PropTypes.object,
+  match: PropTypes.object.isRequired,
 };
 
 AccountsResetPassword.displayName = 'AccountsResetPassword';
 
-registerComponent('AccountsResetPassword', AccountsResetPassword, withCurrentUser);
+registerComponent('AccountsResetPassword', AccountsResetPassword, withCurrentUser, withRouter);

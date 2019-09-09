@@ -11,19 +11,19 @@ Users.groups = {};
  * @summary Group class
  */
 class Group {
-
+  
   constructor() {
     this.actions = [];
   }
 
   can(actions) {
     actions = Array.isArray(actions) ? actions : [actions];
-    this.actions = this.actions.concat(actions);
+    this.actions = this.actions.concat(actions.map(a => a.toLowerCase()));
   }
 
   cannot(actions) {
     actions = Array.isArray(actions) ? actions : [actions];
-    this.actions = _.difference(this.actions, actions);
+    this.actions = _.difference(this.actions, actions.map(a => a.toLowerCase()));
   }
 
 }
@@ -51,15 +51,15 @@ Users.getGroups = user => {
   if (!user) { // guests user
 
     userGroups = ['guests'];
-
+  
   } else {
-
+  
     userGroups = ['members'];
 
     if (user.groups) { // custom groups
       userGroups = userGroups.concat(user.groups);
-    }
-
+    } 
+    
     if (Users.isAdmin(user)) { // admin
       userGroups.push('admins');
     }
@@ -90,7 +90,7 @@ Users.getActions = user => {
 
 /**
  * @summary check if a user is a member of a group
- * @param {Array} user
+ * @param {Array} user 
  * @param {String} group or array of groups
  */
 Users.isMemberOf = (user, groupOrGroups) => {
@@ -123,7 +123,7 @@ Users.canDo = (user, actionOrActions) => {
 //   // note(apollo): use of `__typename` given by react-apollo
 //   //const collectionName = document.getCollectionName();
 //   const collectionName = document.__typename ? Utils.getCollectionNameFromTypename(document.__typename) : document.getCollectionName();
-
+  
 //   if (!user || !document) {
 //     return false;
 //   }
@@ -173,6 +173,8 @@ Users.isAdmin = function (userOrUserId) {
 };
 Users.isAdminById = Users.isAdmin;
 
+export const isAdmin = Users.isAdmin;
+
 /**
  * @summary Check if a user can view a field
  * @param {Object} user - The user performing the action
@@ -194,7 +196,7 @@ Users.isAdminById = Users.isAdmin;
    }
    return false;
  };
-
+ 
 /**
  * @summary Get a list of fields viewable by a user
  * @param {Object} user - The user performing the action
@@ -208,7 +210,7 @@ Users.getViewableFields = function (user, collection, document) {
       return Users.canReadField(user, field, document) ? fieldName : null;
     }
   )));
-}
+};
 
 // collection helper
 Users.helpers({
@@ -232,21 +234,21 @@ Users.restrictViewableFields = function (user, collection, docOrDocs) {
     // get array of all keys viewable by user
     const viewableKeys = _.keys(Users.getViewableFields(user, collection, document));
     const restrictedDocument = _.clone(document);
-
+    
     // loop over each property in the document and delete it if it's not viewable
     _.forEach(restrictedDocument, (value, key) => {
       if (!viewableKeys.includes(key)) {
         delete restrictedDocument[key];
       }
     });
-
+  
     return restrictedDocument;
-
+  
   };
-
+  
   return Array.isArray(docOrDocs) ? docOrDocs.map(restrictDoc) : restrictDoc(docOrDocs);
 
-}
+};
 
 /**
  * @summary Check if a user can submit a field
@@ -275,6 +277,7 @@ Users.canCreateField = function (user, field) {
  * Check if a user can edit a field
  * @param {Object} user - The user performing the action
  * @param {Object} field - The field being edited or inserted
+ * @param {Object} document - The document being edited or inserted
  */
 Users.canUpdateField = function (user, field, document) {
   const canUpdate = field.canUpdate || field.editableBy; //OpenCRUD backwards compatibility
@@ -307,11 +310,11 @@ Users.createGroup('guests'); // non-logged-in users
 Users.createGroup('members'); // regular users
 
 const membersActions = [
-  'user.create',
-  'user.update.own',
+  'user.create', 
+  'user.update.own', 
   // OpenCRUD backwards compatibility
-  'users.new',
-  'users.edit.own',
+  'users.new', 
+  'users.edit.own', 
   'users.remove.own',
 ];
 Users.groups.members.can(membersActions);
@@ -319,12 +322,12 @@ Users.groups.members.can(membersActions);
 Users.createGroup('admins'); // admin users
 
 const adminActions = [
-  'user.create',
+  'user.create', 
   'user.update.all',
   'user.delete.all',
   'setting.update',
   // OpenCRUD backwards compatibility
-  'users.new',
+  'users.new', 
   'users.edit.all',
   'users.remove.all',
   'settings.edit',

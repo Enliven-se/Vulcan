@@ -1,8 +1,8 @@
 /*
 
 Generate the appropriate fragment for the current form, then
-wrap the main Form component with the necessary HoCs while passing
-them the fragment.
+wrap the main Form component with the necessary HoCs while passing 
+them the fragment. 
 
 This component is itself wrapped with:
 
@@ -13,7 +13,7 @@ And wraps the Form component with:
 
 - withNew
 
-Or:
+Or: 
 
 - withSingle
 - withUpdate
@@ -28,7 +28,8 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { intlShape } from 'meteor/vulcan:i18n';
 import { withRouter } from 'react-router';
-import { withApollo, compose } from 'react-apollo';
+import { withApollo } from 'react-apollo';
+import compose from 'recompose/compose';
 import {
   Components,
   registerComponent,
@@ -50,6 +51,8 @@ import {
 
 import withCollectionProps from './withCollectionProps';
 import { callbackProps } from './propTypes';
+
+const intlSuffix = '_intl';
 
 class FormWrapper extends PureComponent {
   constructor(props) {
@@ -94,8 +97,11 @@ class FormWrapper extends PureComponent {
 
     // if "fields" prop is specified, restrict list of fields to it
     if (typeof fields !== 'undefined' && fields.length > 0) {
-      queryFields = _.intersection(queryFields, fields);
-      mutationFields = _.intersection(mutationFields, fields);
+      // add "_intl" suffix to all fields in case some of them are intl fields
+      const fieldsWithIntlSuffix = fields.map(field => `${field}${intlSuffix}`);
+      const allFields = [...fields, ...fieldsWithIntlSuffix];
+      queryFields = _.intersection(queryFields, allFields);
+      mutationFields = _.intersection(mutationFields, allFields);
     }
 
     // add "addFields" prop contents to list of fields
@@ -105,7 +111,7 @@ class FormWrapper extends PureComponent {
     }
 
     const convertFields = field => {
-      return field.slice(-5) === '_intl' ? `${field}{ locale value }` : field;
+      return field.slice(-5) === intlSuffix ? `${field}{ locale value }` : field;
     };
 
     // generate query fragment based on the fields that can be edited. Note: always add _id.
@@ -210,17 +216,16 @@ class FormWrapper extends PureComponent {
     // displays the loading state if needed, and passes on loading and document/data
     const Loader = props => {
       const { document, loading } = props;
-      return (
-        <div>
-        {/*  {loading && <Components.Loading />} */}
+      return loading ? (
+        <Components.Loading />
+      ) : (
         <Components.Form
           document={document}
           loading={loading}
           {...childProps}
           {...props}
         />
-    </div>
-      )
+      );
     };
     Loader.displayName = 'withLoader(Form)';
 

@@ -14,7 +14,6 @@ import { getCollection } from './collections.js';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
-import { throwError } from './errors.js';
 
 registerSetting('debug', false, 'Enable debug mode (more verbose logging)');
 
@@ -150,6 +149,17 @@ Utils.getSiteUrl = function () {
 };
 
 /**
+ * @summary Returns the user defined site URL or Meteor.absoluteUrl. Remove trailing '/' if it exists
+ */
+Utils.getRootUrl = function () {
+  let url = getSetting('siteUrl', Meteor.absoluteUrl());
+  if (url.slice(-1) === '/') {
+    url = url.slice(0, -1);
+  }
+  return url;
+};
+
+/**
  * @summary The global namespace for Vulcan utils.
  * @param {String} url - the URL to redirect
  */
@@ -158,7 +168,7 @@ Utils.getOutgoingUrl = function (url) {
 };
 
 Utils.slugify = function (s) {
-  var slug = getSlug(s, {
+  let slug = getSlug(s, {
     truncate: 60
   });
 
@@ -169,17 +179,25 @@ Utils.slugify = function (s) {
 
   return slug;
 };
-Utils.getUnusedSlug = function (collection, slug) {
-  let suffix = '';
-  let index = 0;
 
+/**
+ * @summary Given a collection and a slug, returns the same or modified slug that's unique within the collection;
+ * It's modified by appending a dash and an integer; eg: my-slug  =>  my-slug-1
+ * @param {Object} collection
+ * @param {string} slug
+ * @param {string} [documentId] If you are generating a slug for an existing document, pass it's _id to
+ * avoid the slug changing
+ * @returns {string} The slug passed in the 2nd param, but may be
+ */
+Utils.getUnusedSlug = function (collection, slug, documentId) {
   // test if slug is already in use
-  while (!!collection.findOne({slug: slug+suffix})) {
-    index++;
-    suffix = '-'+index;
+  for (let index = 0; index <= Number.MAX_SAFE_INTEGER; index++) {
+    const suffix = index ? '-' + index : '';
+    const documentWithSlug = collection.findOne({ slug: slug + suffix });
+    if (!documentWithSlug || (documentId && documentWithSlug._id === documentId)) {
+      return slug + suffix;
+    }
   }
-
-  return slug+suffix;
 };
 
 // Different version, less calls to the db but it cannot be used until we figure out how to use async for onCreate functions
@@ -199,8 +217,15 @@ Utils.getUnusedSlug = function (collection, slug) {
 //   return slug + suffix;
 // };
 
-Utils.getUnusedSlugByCollectionName = function (collectionName, slug) {
-  return Utils.getUnusedSlug(getCollection(collectionName), slug);
+/**
+ * @summary This is the same as Utils.getUnusedSlug(), but takes the name of the collection instead
+ * @param {string} collectionName
+ * @param {string} slug
+ * @param {string} [documentId]
+ * @returns {string}
+ */
+Utils.getUnusedSlugByCollectionName = function (collectionName, slug, documentId) {
+  return Utils.getUnusedSlug(getCollection(collectionName), slug, documentId);
 };
 
 Utils.getShortUrl = function(post) {
@@ -292,7 +317,7 @@ _.mixin({
 
       */
       if (typeof value === 'boolean' || typeof value === 'number') {
-        return
+        return;
       }
 
       if(value === undefined || value === null || value === '' || (Array.isArray(value) && value.length === 0)) {
@@ -307,7 +332,7 @@ Utils.getFieldLabel = (fieldName, collection) => {
   const label = collection.simpleSchema()._schema[fieldName].label;
   const nameWithSpaces = Utils.camelToSpaces(fieldName);
   return label || nameWithSpaces;
-}
+};
 
 Utils.getLogoUrl = () => {
   const logoUrl = getSetting('logoUrl');
@@ -336,15 +361,15 @@ Utils.findIndex = (array, predicate) => {
   let continueLoop = true;
   array.forEach((item, currentIndex) => {
     if (continueLoop && predicate(item)) {
-      index = currentIndex
-      continueLoop = false
+      index = currentIndex;
+      continueLoop = false;
     }
   });
   return index;
-}
+};
 
 // adapted from http://stackoverflow.com/a/22072374/649299
-Utils.unflatten = function(array, options, parent, level=0, tree) {
+Utils.unflatten = function(array, options, parent, level=0, tree){
 
   const {
     idProperty = '_id',
@@ -361,11 +386,11 @@ Utils.unflatten = function(array, options, parent, level=0, tree) {
   if (typeof parent === 'undefined') {
     // if there is no parent, we're at the root level
     // so we return all root nodes (i.e. nodes with no parent)
-    children = _.filter(array, node => !node[parentIdProperty]);
+    children = _.filter(array, node => !get(node, parentIdProperty));
   } else {
     // if there *is* a parent, we return all its child nodes
     // (i.e. nodes whose parentId is equal to the parent's id.)
-    children = _.filter(array, node => node[parentIdProperty] === parent[idProperty]);
+    children = _.filter(array, node => get(node, parentIdProperty) === get(parent, idProperty));
   }
 
   // if we found children, we keep on iterating
@@ -376,7 +401,7 @@ Utils.unflatten = function(array, options, parent, level=0, tree) {
       tree = children;
     } else {
       // else, we add the children to the parent as the "childrenResults" property
-      parent[childrenProperty] = children;
+      set(parent, childrenProperty, children);
     }
 
     // we call the function on each child
@@ -389,7 +414,6 @@ Utils.unflatten = function(array, options, parent, level=0, tree) {
   return tree;
 };
 
-
 // remove the telescope object from a schema and duplicate it at the root
 Utils.stripTelescopeNamespace = (schema) => {
   // grab the users schema keys
@@ -400,15 +424,15 @@ Utils.stripTelescopeNamespace = (schema) => {
 
   // replace the previous schema by an object based on this filteredSchemaKeys
   return filteredSchemaKeys.reduce((sch, key) => ({...sch, [key]: schema[key]}), {});
-}
+};
 
 /**
  * Convert an array of field names into a Mongo fields specifier
  * @param {Array} fieldsArray
  */
 Utils.arrayToFields = (fieldsArray) => {
-  return _.object(fieldsArray, _.map(fieldsArray, function () {return true}));
-}
+  return _.object(fieldsArray, _.map(fieldsArray, function () {return true;}));
+};
 
 /**
  * Get the display name of a React component
@@ -442,7 +466,7 @@ Utils.convertDates = (collection, listOrDocument) => {
   });
 
   return Array.isArray(listOrDocument) ? convertedList : convertedList[0];
-}
+};
 
 Utils.encodeIntlError = error => typeof error !== 'object' ? error : JSON.stringify(error);
 
@@ -472,7 +496,7 @@ Utils.decodeIntlError = (error, options = {stripped: false}) => {
     // check if the error has at least an 'id' expected by react-intl
     if (!parsedError.id) {
       console.error('[Undecodable error]', error); // eslint-disable-line
-      return {id: 'app.something_bad_happened', value: '[undecodable error]'}
+      return {id: 'app.something_bad_happened', value: '[undecodable error]'};
     }
 
     // return the parsed error
@@ -490,21 +514,9 @@ Utils.defineName = (o, name) => {
   return o;
 };
 
-Utils.performCheck = (operation, user, checkedObject, context, documentId, operationName, collectionName) => {
-
-  if (!checkedObject) {
-    throwError({ id: 'app.document_not_found', data: { documentId, operationName } });
-  }
-
-  if (!operation(user, checkedObject, context)) {
-    throwError({ id: 'app.operation_not_allowed', data: { documentId, operationName } });
-  }
-
-}
-
 Utils.getRoutePath = routeName => {
   return Routes[routeName] && Routes[routeName].path;
-}
+};
 
 String.prototype.replaceAll = function(search, replacement) {
   var target = this;
@@ -520,7 +532,7 @@ Utils.pluralize = s => {
       `${s}es` :
       `${s}s`;
   return plural;
-}
+};
 
 Utils.removeProperty = (obj, propertyName) => {
   for(const prop in obj) {
@@ -530,4 +542,13 @@ Utils.removeProperty = (obj, propertyName) => {
       Utils.removeProperty(obj[prop], propertyName);
     }
   }
-}
+};
+
+/**
+ * Convert an array of field options into an allowedValues array
+ * @param {Array} schemaFieldOptionsArray
+ */
+Utils.getSchemaFieldAllowedValues = schemaFieldOptionsArray => {
+  if (!Array.isArray(schemaFieldOptionsArray)) { throw new Error('Utils.getAllowedValues: Expected Array')}
+  return schemaFieldOptionsArray.map(schemaFieldOption => schemaFieldOption.value);
+};

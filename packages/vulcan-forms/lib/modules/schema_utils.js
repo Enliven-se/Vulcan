@@ -2,7 +2,9 @@
  * Schema converter/getters
  */
 import Users from 'meteor/vulcan:users';
-import _ from 'lodash';
+import _filter from 'lodash/filter';
+import _keys from 'lodash/keys';
+import { array } from 'prop-types';
 
 /* getters */
 // filter out fields with "." or "$"
@@ -33,7 +35,7 @@ export const getUpdateableFields = schema => {
  * @param {Object} user – the user for which to check field permissions
  */
 export const getInsertableFields = function(schema, user) {
-  const fields = _.filter(_.keys(schema), function(fieldName) {
+  const fields = _filter(_keys(schema), function(fieldName) {
     var field = schema[fieldName];
     return Users.canCreateField(user, field);
   });
@@ -54,7 +56,6 @@ export const getEditableFields = function(schema, user, document) {
 };
 
 /*
-
 
 Convert a nested SimpleSchema schema into a JSON object
 If flatten = true, will create a flat object instead of nested tree
@@ -77,13 +78,16 @@ export const convertSchema = (schema, flatten = false) => {
       // and get its schema if possible or its type otherwise
       const subSchemaOrType = getNestedFieldSchemaOrType(fieldName, schema);
       if (subSchemaOrType) {
-        // if nested field exists, call convertSchema recursively
+        // remember the subschema if it exists, allow to customize labels for each group of items for arrays of objects
+        jsonSchema[fieldName].arrayFieldSchema = getFieldSchema(`${fieldName}.$`, schema);
+
+        // call convertSchema recursively on the subSchema
         const convertedSubSchema = convertSchema(subSchemaOrType);
         // nested schema can be a field schema ({type, canRead, etc.}) (convertedSchema will be null)
         // or a schema on its own with subfields (convertedSchema will return smth)
         if (!convertedSubSchema) {
           // subSchema is a simple field in this case (eg array of numbers)
-          jsonSchema[fieldName].field = getFieldSchema(`${fieldName}.$`, schema);
+          jsonSchema[fieldName].isSimpleArrayField = true;//getFieldSchema(`${fieldName}.$`, schema);
         } else {
           // subSchema is a full schema with multiple fields (eg array of objects)
           if (flatten) {
@@ -175,7 +179,6 @@ export const schemaProperties = [
   'autoValue',
   'hidden', // hidden: true means the field is never shown in a form no matter what
   'mustComplete', // mustComplete: true means the field is required to have a complete profile
-  'profile', // profile: true means the field is shown on user profiles
   'form', // form placeholder
   'inputProperties', // form placeholder
   'control', // SmartForm control (String or React component)
@@ -183,9 +186,12 @@ export const schemaProperties = [
   'autoform', // legacy form placeholder; backward compatibility (not used anymore)
   'order', // position in the form
   'group', // form fieldset group
-  'onInsert', // field insert callback
-  'onEdit', // field edit callback
-  'onRemove', // field remove callback
+  'onCreate', // field insert callback
+  'onUpdate', // field edit callback
+  'onDelete', // field remove callback
+  'onInsert', // OpenCRUD backwards compatibility
+  'onEdit', // OpenCRUD backwards compatibility
+  'onRemove', // OpenCRUD backwards compatibility
   'canRead',
   'canCreate',
   'canUpdate',

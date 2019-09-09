@@ -1,12 +1,13 @@
 import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router';
 import { intlShape } from 'meteor/vulcan:i18n';
 import { STATES } from '../../helpers.js';
 
 class AccountsEnrollAccount extends PureComponent {
   componentDidMount() {
-    const token = this.props.params.token;
+    const token = this.props.match.params.token;
     Accounts._loginButtonsSession.set('enrollAccountToken', token);
   }
 
@@ -20,7 +21,7 @@ class AccountsEnrollAccount extends PureComponent {
     } else {
       return (
         <div className='password-reset-form'>
-          <div>{this.context.intl.formatMessage({id: 'accounts.info_password_changed'})}!</div>
+          <div>{this.context.intl.formatMessage({id: 'accounts.info_password_changed'})}</div>
         </div>
       );
     }
@@ -29,13 +30,13 @@ class AccountsEnrollAccount extends PureComponent {
 
 AccountsEnrollAccount.contextTypes = {
   intl: intlShape
-}
+};
 
 AccountsEnrollAccount.propsTypes = {
   currentUser: PropTypes.object,
-  params: PropTypes.object,
+  match: PropTypes.object.isRequired,
 };
 
 AccountsEnrollAccount.displayName = 'AccountsEnrollAccount';
 
-registerComponent('AccountsEnrollAccount', AccountsEnrollAccount, withCurrentUser);
+registerComponent('AccountsEnrollAccount', AccountsEnrollAccount, withCurrentUser, withRouter);

@@ -1,3 +1,4 @@
+import { getSetting } from 'meteor/vulcan:lib';
 import Users from './collection.js';
 import md5 from 'crypto-js/md5';
 
@@ -11,7 +12,7 @@ Users.avatar = {
    * @return {String}        output cleaned string
    */
   cleanString: function (string) {
-    return string.trim().toLowerCase()
+    return string.trim().toLowerCase();
   },
 
   /**
@@ -22,8 +23,8 @@ Users.avatar = {
    * @return {Boolean}
    */
   isHash: function (string) {
-    var self = this
-    return /^[a-f0-9]{32}$/i.test(self.cleanString(string))
+    var self = this;
+    return /^[a-f0-9]{32}$/i.test(self.cleanString(string));
   },
 
   /**
@@ -35,7 +36,7 @@ Users.avatar = {
   hash: function (string) {
     var self = this;
     // eslint-disable-next-line babel/new-cap
-    return md5(self.cleanString(string)).toString()
+    return md5(self.cleanString(string)).toString();
   },
 
   /**
@@ -49,28 +50,28 @@ Users.avatar = {
    * @return {String}             complete url to the avatar
    */
   imageUrl: function (emailOrHash, options) {
-    var self = this
-    options = options || {}
+    var self = this;
+    options = options || {};
 
     // Want HTTPS ?
     var url = options.secure
     ? 'https://secure.gravatar.com/avatar/'
-    : 'http://www.gravatar.com/avatar/'
-    delete options.secure
+    : 'http://www.gravatar.com/avatar/';
+    delete options.secure;
 
     // Is it an MD5 already ?
     url += self.isHash(emailOrHash)
     ? emailOrHash
-    : self.hash(emailOrHash)
+    : self.hash(emailOrHash);
 
     // Have any options to pass ?
     var params = _.map(options, function (val, key) {
-      return key + '=' + encodeURIComponent(val)
-    }).join('&')
+      return key + '=' + encodeURIComponent(val);
+    }).join('&');
 
     return (params.length > 0)
     ? url + '?' + params
-    : url
+    : url;
   },
 
   // Default functionality. You can override these options by calling
@@ -159,9 +160,9 @@ Users.avatar = {
   // Get the initials of the user
   getInitials: function (user) {
 
-    var initials = '';
-    var name = '';
-    var parts = [];
+    let initials = '';
+    let name = '';
+    let parts = [];
 
     if (user && user.profile && user.profile.firstName) {
       initials = user.profile.firstName.charAt(0).toUpperCase();
@@ -180,6 +181,9 @@ Users.avatar = {
       if (user && user.profile && user.profile.name) {
         name = user.profile.name;
       }
+      else if (user && user.displayName) {
+        name = user.displayName;
+      }
       else if (user && user.username) {
         name = user.username;
       }
@@ -194,6 +198,16 @@ Users.avatar = {
     }
 
     return initials;
+  },
+  
+  getUserStatus: function (user) {
+    const hostCompanyId = getSetting('hostCompany.companyId');
+  
+    if (Users.isAdmin(user)) {
+      return 'admin';
+    } else if (!!user.companyId && !!hostCompanyId && user.companyId === hostCompanyId) {
+      return 'host';
+    }
   },
 
   // Get the url of the user's avatar
@@ -342,3 +356,5 @@ Users.avatar = {
 
 // This will be replaced if the user calls setOptions in their own code
 Users.avatar.setOptions({});
+
+export const avatar = Users.avatar;

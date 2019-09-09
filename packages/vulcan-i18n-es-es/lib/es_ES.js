@@ -10,7 +10,6 @@ addStrings('es', {
   'accounts.error_username_required': 'Nombre de usuario requerido',
   'accounts.error_accounts_': '',
   'accounts.error_unknown': 'Error desconocido',
-  'accounts.acceptToS': 'Please accept the Terms And Conditions before continuing.',
   'accounts.error_user_not_found': 'Usuario no encontrado',
   'accounts.error_username_already_exists': 'El nombre de usuario ya existe',
   'accounts.enter_username_or_email': 'Ingresar nombre de usuario o correo electrónico',
@@ -49,7 +48,6 @@ addStrings('es', {
   'forms.confirm_discard': 'Discard changes?', // TODO: translate
 
   'users.profile': 'Perfil',
-  'users.following': 'Following',
   'users.complete_profile': 'Complete su perfil',
   'users.profile_completed': 'Perfil completado.',
   'users.edit_account': 'Editar cuenta',
@@ -71,6 +69,7 @@ addStrings('es', {
   'users.newsletter_subscribeToNewsletter': 'Suscribirse al boletín informativo',
   'users.users_admin': 'Admin',
   'users.admin': 'Admin',
+  'users.host': 'Miembro del equipo',
   'users.isAdmin': 'Administrador',
   'users.posts': 'Publicaciones',
   'users.upvoted_posts': 'Publicaciones modificadas',
@@ -129,9 +128,6 @@ addStrings('es', {
   'app.disallowed_property_detected': 'Propiedad no permitida detectada: {value}',
   'app.something_bad_happened': 'Algo malo pasó...',
   'app.embedly_not_authorized': 'Clave API incrustada no válida incluida en el archivo de configuración. Para encontrar su clave, inicie sesión en https://app.embed.ly -> API',
-  'app.required_field_missing': '{fieldName} es obligatorio.',
-  'app.field_is_too_long': '{fieldName} no puede superar {limit} caracteres.',
-  'app.schema_validation_error': 'Error de validación de esquema',
 
   'cards.edit': 'Editar',
   'datatable.new': 'Nuevo',
@@ -142,5 +138,20 @@ addStrings('es', {
 
   'errors.expectedType': 'Se esperaba un campo “{label}” de tipo {dataType}, se ha recibido “{value}” en su lugar.',
   'errors.required': 'El campo “{label}” es obligatorio.',
-  'errors.maxString': 'El campo “{label}” está limitado a {max} carácteres.',
+  'errors.minString': 'El campo “{label}” debe tener al menos {max} caracteres.',
+  'errors.maxString': 'El campo “{label}” está limitado a {max} caracteres.',
+  'errors.generic':'Ha ocurrido un error: <code>{errorMessage}</code>',
+  'errors.generic_report':'Algo ha ido mal: <code>{errorMessage}</code>. </br>Se ha reportado el error.',
+  'errors.minNumber':'El campo “{label}” debe ser superior a {min}.',
+  'errors.maxNumber':'El campo “{label}” debe ser inferior a {max}.',
+  'errors.minCount':'El campo “{label}” debe tener al menos {count}.',
+  'errors.maxCount':'El campo “{label}” está limitado a {count}.',
+  'errors.regEx':'El campo “{label}” está mal formateado.',
+  'errors.badDate':'El campo “{label}” debe ser una fecha.',
+  'errors.notAllowed':'El valor del campo “{label}” no està permitido.',
+  'errors.noDecimal':'El campo “{label}” no puede ser un decimal.',
+
+  'errors.minNumberExclusive':'',
+  'errors.maxNumberExclusive':'',
+  'errors.keyNotInSchema':'',
 });

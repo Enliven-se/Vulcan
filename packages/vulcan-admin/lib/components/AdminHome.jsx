@@ -16,9 +16,11 @@ const AdminHome = ({ currentUser }) =>
           terms: {view: 'usersAdmin'},
           limit: 20
         }}
+        title="Users"
         showEdit={true}
+        showPaper={true}
       />
     </Components.ShowIf>
-  </div>
+  </div>;
 
 export default withCurrentUser(AdminHome);

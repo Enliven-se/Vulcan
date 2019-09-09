@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent } from 'meteor/vulcan:core';
-import mergeWithComponents from '../modules/mergeWithComponents';
+import { registerComponent, mergeWithComponents } from 'meteor/vulcan:core';
 
 // Replaceable layout
 const FormNestedObjectLayout = ({ hasErrors, label, content }) => (
@@ -13,7 +12,7 @@ const FormNestedObjectLayout = ({ hasErrors, label, content }) => (
   </div>
 );
 FormNestedObjectLayout.propTypes = {
-  hasErrors: PropTypes.bool,
+  hasErrors: PropTypes.oneOfType([PropTypes.number, PropTypes.bool]),
   label: PropTypes.node,
   content: PropTypes.node
 };
@@ -42,7 +41,7 @@ class FormNestedObject extends PureComponent {
     const hasErrors = nestedObjectErrors && nestedObjectErrors.length;
     return (
       <FormComponents.FormNestedObjectLayout
-        hasErros={hasErrors}
+        hasErrors={hasErrors}
         label={this.props.label}
         content={[
           <FormComponents.FormNestedItem
@@ -70,6 +69,6 @@ FormNestedObject.propTypes = {
   formComponents: PropTypes.object
 };
 
-module.exports = FormNestedObject;
+export default FormNestedObject;
 
 registerComponent('FormNestedObject', FormNestedObject);

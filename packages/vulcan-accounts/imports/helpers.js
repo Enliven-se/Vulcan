@@ -1,7 +1,7 @@
 let browserHistory;
 try {
   browserHistory = require('react-router').browserHistory;
-} catch (e) {
+} catch(e) {
   // swallow errors
 }
 export const loginButtonsSession = Accounts._loginButtonsSession;
@@ -16,17 +16,13 @@ export const STATES = {
 
 export function getLoginServices() {
   // First look for OAuth services.
-  const services = Package['accounts-oauth']
-    ? Accounts
-      .oauth
-      .serviceNames()
-    : [];
+  const services = Package['accounts-oauth'] ? Accounts.oauth.serviceNames() : [];
 
   // Be equally kind to all login services. This also preserves
   // backwards-compatibility.
   services.sort();
 
-  return _.map(services, function (name) {
+  return _.map(services, function(name){
     return {name: name};
   });
 }
@@ -51,18 +47,18 @@ export function loginResultCallback(service, err) {
   }
 
   if (Meteor.isClient) {
-    if (typeof redirect === 'string') {
+    if (typeof redirect === 'string'){
       window.location.href = '/';
     }
 
-    if (typeof service === 'function') {
+    if (typeof service === 'function'){
       service();
     }
   }
 }
 
 export function passwordSignupFields() {
-  return Accounts.ui._options.passwordSignupFields || "USERNAME_AND_EMAIL";
+  return Accounts.ui._options.passwordSignupFields || 'USERNAME_AND_EMAIL';
 }
 
 export function validateEmail(email, showMessage, clearMessage) {
@@ -80,23 +76,21 @@ export function validateEmail(email, showMessage, clearMessage) {
   }
 }
 
-export function validatePassword(password = '', showMessage, clearMessage) {
+export function validatePassword(password = '', showMessage, clearMessage){
   if (password.length >= Accounts.ui._options.minimumPasswordLength) {
     return true;
   } else {
-    const errMsg = 'accounts.error_minchar'
+    const errMsg = 'accounts.error_minchar';
     showMessage(errMsg, 'warning', false, 'password');
     return false;
   }
 }
 
 export function validateUsername(username, showMessage, clearMessage, formState) {
-  if (username) {
+  if ( username ) {
     return true;
   } else {
-    const fieldName = (passwordSignupFields() === 'USERNAME_ONLY' || formState === STATES.SIGN_UP)
-      ? 'username'
-      : 'usernameOrEmail';
+    const fieldName = (passwordSignupFields() === 'USERNAME_ONLY' || formState === STATES.SIGN_UP) ? 'username' : 'usernameOrEmail';
     showMessage('accounts.error_username_required', 'warning', false, fieldName);
     return false;
   }
@@ -108,19 +102,13 @@ export function redirect(redirect) {
       // Run after all app specific redirects, i.e. to the login screen.
       Meteor.setTimeout(() => {
         if (Package['kadira:flow-router']) {
-          Package['kadira:flow-router']
-            .FlowRouter
-            .go(redirect);
+          Package['kadira:flow-router'].FlowRouter.go(redirect);
         } else if (Package['kadira:flow-router-ssr']) {
-          Package['kadira:flow-router-ssr']
-            .FlowRouter
-            .go(redirect);
+          Package['kadira:flow-router-ssr'].FlowRouter.go(redirect);
         } else if (browserHistory) {
           browserHistory.push(redirect);
         } else {
-          window
-            .history
-            .pushState({}, 'redirect', redirect);
+          window.history.pushState( {} , 'redirect', redirect );
         }
       }, 100);
     }
@@ -128,13 +116,7 @@ export function redirect(redirect) {
 }
 
 export function capitalize(string) {
-  return string
-    .replace(/\-/, ' ')
-    .split(' ')
-    .map(word => {
-      return word
-        .charAt(0)
-        .toUpperCase() + word.slice(1);
-    })
-    .join(' ');
+  return string.replace(/\-/, ' ').split(' ').map(word => {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }).join(' ');
 }

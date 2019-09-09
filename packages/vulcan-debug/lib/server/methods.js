@@ -1,24 +1,45 @@
-import VulcanEmail from 'meteor/vulcan:email';
-import Users from 'meteor/vulcan:users';
-import { getSetting, registerSetting, Utils } from 'meteor/vulcan:lib';
+// import VulcanEmail from 'meteor/vulcan:email';
+// import Users from 'meteor/vulcan:users';
+// import { getSetting, registerSetting, Utils } from 'meteor/vulcan:lib';
 
-registerSetting('defaultEmail');
+// registerSetting('defaultEmail');
 
-// const _is_admin = () => Users.isAdminById(this.userId);
-const _is_admin = () => getSetting('enableDevelopmentEmails', false);
+// Meteor.methods({
+//   "email.test": function (emailName) {
 
-Meteor.methods({
-  "email.test": function (emailName) {
+//     const email = VulcanEmail.emails[emailName];
 
-    if (_is_admin()) {
+//     if(Users.isAdminById(this.userId)){
 
-      // console.log("// testing email [" + emailName + "]", email); // eslint-disable-line
-      const email = VulcanEmail.buildAndSend({ to: getSetting('defaultEmail'), emailName });
+//       console.log("// testing email ["+emailName+"]"); // eslint-disable-line
+//       let html, properties;
 
-    } else {
-      const error = Utils.encodeIntlError({ id: "app.noPermission" });
-      console.log(`######## email.test: error`, error);
-      throw new Error(error);
-    }
-  }
-});
+//       // if email has a custom way of generating its HTML, use it
+//       if (typeof email.getTestHTML !== "undefined") {
+
+//         html = email.getTestHTML.bind(email)();
+
+//       } else {
+
+//         // else get test object (sample post, comment, user, etc.)
+//         const testObject = email.getTestObject();
+//         // get test object's email properties
+//         properties = email.getProperties(testObject);
+
+//         // then apply email template to properties, and wrap it with buildTemplate
+//         html = VulcanEmail.buildTemplate(VulcanEmail.getTemplate(email.template)(properties));
+
+//       }
+
+//       // get subject
+//       const subject = "[Test] " + email.subject.bind(email)(properties);
+
+//       VulcanEmail.send (getSetting('defaultEmail'), subject, html)
+
+//       return subject;
+
+//     } else {
+//       throw new Error(Utils.encodeIntlError({id: "app.noPermission"}));
+//     }
+//   }
+// });

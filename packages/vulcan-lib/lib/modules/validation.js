@@ -1,8 +1,8 @@
 import pickBy from 'lodash/pickBy';
 import mapValues from 'lodash/mapValues';
 
-export const dataToModifier = data => ({
-  $set: pickBy(data, f => f !== null),
+export const dataToModifier = data => ({ 
+  $set: pickBy(data, f => f !== null), 
   $unset: mapValues(pickBy(data, f => f === null), () => true),
 });
 
@@ -73,10 +73,10 @@ export const validateDocument = (document, collection, context) => {
 
   1. Check that the current user has permission to insert each field
   2. Run SimpleSchema validation step
-
+  
 */
 export const validateModifier = (modifier, document, collection, context) => {
-
+  
   const { Users, currentUser } = context;
   const schema = collection.simpleSchema()._schema;
   const set = modifier.$set;
@@ -126,7 +126,7 @@ export const validateModifier = (modifier, document, collection, context) => {
 
 export const validateData = (data, document, collection, context) => {
   return validateModifier(dataToModifier(data), document, collection, context);
-}
+};
 
 /*
 
@@ -212,7 +212,7 @@ export const validateDocumentNotUsed = (document, collection, context) => {
   3. Check field types
   4. Check for missing fields
   5. Run SimpleSchema validation step (for now)
-
+  
 */
 export const validateModifierNotUsed = (modifier, document, collection, context) => {
   const { Users, currentUser } = context;

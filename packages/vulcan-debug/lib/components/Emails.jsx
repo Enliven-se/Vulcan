@@ -10,37 +10,33 @@ class Email extends PureComponent {
     this.sendTest = this.sendTest.bind(this);
     this.state = {
       loading: false
-    }
+    };
   }
 
   sendTest() {
     this.setState({loading: true});
 
     // TODO fix this
-    try {
-      Meteor.call("email.test", this.props.name, (error, result) => {
-        this.setState({ loading: false });
-        if (error) {
-          console.error(error.message);
-        } else {
-          console.log(`Test email sent (“${result}”).`);
-        }
-      });
-    } catch (e) {
-      console.error(e);
-    }
+    // Actions.call("email.test", this.props.name, (error, result) => {
+    //   this.setState({loading: false});
+    //   if (error) {
+    //     Messages.flash(error.message, "error");
+    //   } else {
+    //     Messages.flash(`Test email sent (“${result}”).`, "success");
+    //   }
+    // });
   }
 
   render() {
-
+    
     const { email, name } = this.props;
 
     return (
       <tr>
         <td>{name}</td>
-        <td><a href={'/email/template/'+email.template} target="_blank">{email.template}</a></td>
+        <td><a href={'/email/template/'+email.template} target="_blank" rel="noopener noreferrer">{email.template}</a></td>
         <td>{typeof email.subject === 'function' ? email.subject({}) : email.subject}</td>
-        <td><a href={email.path.replace(':_id?', '').replace(':documentId?', '')} target="_blank">{email.path}</a></td>
+        <td><a href={email.path.replace(':_id?', '').replace(':documentId?', '')} target="_blank" rel="noopener noreferrer">{email.path}</a></td>
         <td>
           <div className={this.state.loading ? 'test-email loading' : 'test-email'}>
             <Components.Button disabled={this.state.loading} onClick={this.sendTest} variant="primary">Send Test</Components.Button>
@@ -48,7 +44,7 @@ class Email extends PureComponent {
           </div>
         </td>
       </tr>
-    )
+    );
   }
 }
 
@@ -83,9 +79,9 @@ const Emails = (/* props*/) => {
         </table>
 
       </div>
-
+    
     </div>
-  )
+  );
 };
 
 registerComponent('Emails', Emails);
