@@ -1,4 +1,4 @@
-import { createError } from 'apollo-errors';
+import get from 'lodash/get';
 
 /*
 
@@ -9,13 +9,15 @@ const getFirstWord = input => {
   const parts = /"([^"]*)"/.exec(input);
   if (parts === null) {
     return null;
-   }
-   return parts[1];
-}
+  }
+  return parts[1];
+};
 
 /* 
 
 Parse a GraphQL error message
+
+TODO: check if still useful?
 
 Sample message: 
 
@@ -26,7 +28,11 @@ In field "addresses": Expected "[JSON]!", found null."
 
 */
 
-const parseErrorMessage = message => {
+export const parseErrorMessage = message => {
+
+  if (!message) {
+    return null;
+  }
 
   // note: optionally add .slice(1) at the end to get rid of the first error, which is not that helpful
   let fieldErrors = message.split('\n');
@@ -35,7 +41,7 @@ const parseErrorMessage = message => {
     // field name is whatever is between the first to double quotes
     const fieldName = getFirstWord(error);
     if (error.includes('found null')) {
-      // missing field errors 
+      // missing field errors
       return {
         id: 'errors.required',
         path: fieldName,
@@ -45,13 +51,14 @@ const parseErrorMessage = message => {
       }
     } else {
       // other generic GraphQL errors
-      return { 
-        message: error
-      }
+      return {
+        message: error,
+      };
     }
   });
   return fieldErrors;
-}
+};
+
 /*
 
 Errors can have the following properties stored on their `data` property:
@@ -60,14 +67,6 @@ Errors can have the following properties stored on their `data` property:
   - properties: additional data. Will be passed to vulcan-i18n as values
   - message: if id cannot be used as i81n key, message will be used
   
-Scenario 1: normal error thrown with new Error(), put it in array and return it
-
-Scenario 2: multiple GraphQL errors stored on data.errors
-
-Scenario 3: single GraphQL error with data property
-
-Scenario 4: single GraphQL error with no data property
-
 */
 export const getErrors = error => {
 
@@ -97,13 +96,10 @@ export const getErrors = error => {
 
 An error should have: 
 
-- id: will be used as i18n key (note: available as `name` on the client)
-- message: optionally, a plain-text message
-- data: data/values to give more context to the error
+  // regular server error (with schema stitching)
+  const regularErrors = get(graphQLErrors, '0.extensions.exception.errors');
 
-*/
-export const throwError = error => {
-  const { id, message = id, data } = error;
-  const MissingDocumentError = createError(id, { message });
-  throw new MissingDocumentError({ id, data });
+  return apolloErrors || regularErrors || graphQLErrors;
+ 
 };
+*/

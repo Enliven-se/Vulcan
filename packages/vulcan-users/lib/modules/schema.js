@@ -90,7 +90,7 @@ const schema = {
   isAdmin: {
     type: Boolean,
     label: 'Admin',
-    control: 'checkbox',
+    input: 'checkbox',
     optional: true,
     canCreate: ['admins'],
     canUpdate: ['admins'],
@@ -101,7 +101,7 @@ const schema = {
     type: String,
     label: 'Preferred Language',
     optional: true,
-    control: 'select',
+    input: 'select',
     canCreate: ['members'],
     canUpdate: ['members'],
     canRead: ['guests'],
@@ -132,7 +132,7 @@ const schema = {
   displayName: {
     type: String,
     optional: true,
-    control: 'text',
+    input: 'text',
     canCreate: ['members'],
     canUpdate: ['members'],
     canRead: ['guests'],
@@ -150,7 +150,7 @@ const schema = {
     optional: true,
     regEx: SimpleSchema.RegEx.Email,
     mustComplete: true,
-    control: 'text',
+    input: 'text',
     canCreate: ['members'],
     canUpdate: ['members'],
     canRead: ownsOrIsAdmin,
@@ -241,7 +241,7 @@ const schema = {
   twitterUsername: {
     type: String,
     optional: true,
-    control: 'text',
+    input: 'text',
     canCreate: ['members'],
     canUpdate: ['members'],
     canRead: ['guests'],
@@ -264,7 +264,7 @@ const schema = {
   groups: {
     type: Array,
     optional: true,
-    control: 'checkboxgroup',
+    input: 'checkboxgroup',
     canCreate: ['admins'],
     canUpdate: ['admins'],
     canRead: ['guests'],
@@ -293,6 +293,18 @@ const schema = {
         return Users.getProfileUrl(user, true);
       },
     }
+  },
+
+  pagePath: {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
+    resolveAs: {
+      type: 'String',
+      resolver: (user, args, { Users }) => {
+        return Users.getProfileUrl(user, false);
+      },
+    },
   },
 
   editUrl: {

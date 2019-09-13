@@ -1,5 +1,6 @@
 import { createMutator, updateMutator, deleteMutator, Utils, Connectors, registerCallback } from 'meteor/vulcan:lib';
 import Users from './collection'; // TODO: circular dependency?
+import isEmpty from 'lodash/isEmpty';
 
 const performCheck = (mutation, user, document) => {
   if (!mutation.check(user, document))
@@ -74,7 +75,9 @@ const deleteMutation = {
   async mutation(root, { selector }, context) {
 
     const { Users, currentUser } = context;
-
+    if (isEmpty(selector) || (!selector._id && !selector.documentId && !selector.slug)) {
+      throw new Error('Selector cannot be empty');
+    }
     const document = await Connectors.get(Users, selector);
 
     if (!document) {
@@ -85,7 +88,7 @@ const deleteMutation = {
 
     return deleteMutator({
       collection: Users,
-      selector,
+      selector: { _id: document._id },
       currentUser,
       validate: true,
       context,
@@ -142,15 +145,14 @@ registerCallback({
 });
 registerCallback({
   name:'user.create.async',
-  iterator: {data:'the document after being inserted in the database'},
+  iterator: { document: 'The document being inserted' },
   properties: [
-    {insertedDocument: 'The document that was inserted to the collection'},
-    { currentUser: 'The current user' },
-    {collection: 'The Users collection'}
+    { data: 'The document being inserted' }, //for backward compatibility
+    { collection: 'The Users collection' }
   ],
   runs: 'async',
-  returns: 'document',
-  description: 'Perform operations on a new document after it\'s inserted in the database asynchronously.',
+  returns: null,
+  description: 'Perform operations on a new user after it\'s inserted in the database asynchronously.',
 });
 registerCallback({
   name: 'user.update.validate',

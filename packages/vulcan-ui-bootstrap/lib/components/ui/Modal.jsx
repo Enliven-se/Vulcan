@@ -14,7 +14,7 @@ const BootstrapModal = ({ children, size, show, onHide, title, showCloseButton, 
     headerComponent = <Modal.Header closeButton={showCloseButton}></Modal.Header>;
   }
 
-  const footerComonent = footer ? <Modal.Footer>{footer}</Modal.Footer> : null;
+  const footerComponent = footer ? <Modal.Footer>{footer}</Modal.Footer> : null;
   
   return (
     <Modal bsSize={size} show={show} onHide={onHide} {...rest}>
@@ -22,7 +22,7 @@ const BootstrapModal = ({ children, size, show, onHide, title, showCloseButton, 
       <Modal.Body>
         {children}
       </Modal.Body>
-      {footerComonent}
+      {footerComponent}
     </Modal>
   );
 };

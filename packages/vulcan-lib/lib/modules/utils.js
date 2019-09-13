@@ -14,7 +14,6 @@ import { getCollection } from './collections.js';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
-import { throwError } from './errors.js';
 
 registerSetting('debug', false, 'Enable debug mode (more verbose logging)');
 
@@ -150,6 +149,17 @@ Utils.getSiteUrl = function () {
 };
 
 /**
+ * @summary Returns the user defined site URL or Meteor.absoluteUrl. Remove trailing '/' if it exists
+ */
+Utils.getRootUrl = function () {
+  let url = getSetting('siteUrl', Meteor.absoluteUrl());
+  if (url.slice(-1) === '/') {
+    url = url.slice(0, -1);
+  }
+  return url;
+};
+
+/**
  * @summary The global namespace for Vulcan utils.
  * @param {String} url - the URL to redirect
  */
@@ -158,7 +168,7 @@ Utils.getOutgoingUrl = function (url) {
 };
 
 Utils.slugify = function (s) {
-  var slug = getSlug(s, {
+  let slug = getSlug(s, {
     truncate: 60
   });
 
@@ -169,17 +179,16 @@ Utils.slugify = function (s) {
 
   return slug;
 };
-Utils.getUnusedSlug = function (collection, slug) {
-  let suffix = '';
-  let index = 0;
 
+Utils.getUnusedSlug = function (collection, slug, documentId) {
   // test if slug is already in use
-  while (!!collection.findOne({slug: slug+suffix})) {
-    index++;
-    suffix = '-'+index;
+  for (let index = 0; index <= Number.MAX_SAFE_INTEGER; index++) {
+    const suffix = index ? '-' + index : '';
+    const documentWithSlug = collection.findOne({ slug: slug + suffix });
+    if (!documentWithSlug || (documentId && documentWithSlug._id === documentId)) {
+      return slug + suffix;
+    }
   }
-
-  return slug+suffix;
 };
 
 // Different version, less calls to the db but it cannot be used until we figure out how to use async for onCreate functions
@@ -199,8 +208,8 @@ Utils.getUnusedSlug = function (collection, slug) {
 //   return slug + suffix;
 // };
 
-Utils.getUnusedSlugByCollectionName = function (collectionName, slug) {
-  return Utils.getUnusedSlug(getCollection(collectionName), slug);
+Utils.getUnusedSlugByCollectionName = function (collectionName, slug, documentId) {
+  return Utils.getUnusedSlug(getCollection(collectionName), slug, documentId);
 };
 
 Utils.getShortUrl = function(post) {
@@ -530,4 +539,13 @@ Utils.removeProperty = (obj, propertyName) => {
       Utils.removeProperty(obj[prop], propertyName);
     }
   }
-}
+};
+
+/**
+ * Convert an array of field options into an allowedValues array
+ * @param {Array} schemaFieldOptionsArray
+ */
+Utils.getSchemaFieldAllowedValues = schemaFieldOptionsArray => {
+  if (!Array.isArray(schemaFieldOptionsArray)) { throw new Error('Utils.getAllowedValues: Expected Array')}
+  return schemaFieldOptionsArray.map(schemaFieldOption => schemaFieldOption.value);
+};

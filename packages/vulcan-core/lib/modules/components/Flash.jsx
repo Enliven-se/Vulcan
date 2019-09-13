@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import {intlShape} from 'meteor/vulcan:i18n';
 
 class Flash extends PureComponent {
-
   constructor() {
     super();
     this.dismissFlash = this
@@ -55,7 +54,7 @@ class Flash extends PureComponent {
           message: translatedMessage
         };
     }
-  }
+  };
 
   render() {
 
@@ -90,7 +89,7 @@ Flash.contextTypes = {
 
 registerComponent('Flash', Flash);
 
-const FlashMessages = ({messages, clear, markAsSeen}) => {
+const FlashMessages = ({messages, clear, markAsSeen, ...flashActions}) => {
   return (
     <div className="flash-messages">
       {messages
@@ -99,12 +98,16 @@ const FlashMessages = ({messages, clear, markAsSeen}) => {
           key={message._id}
           message={message}
           clear={clear}
+          {...flashActions}
           markAsSeen={markAsSeen}/>)}
     </div>
   );
 }
 
 FlashMessages.displayName = 'FlashMessages';
+FlashMessages.propTypes = {
+  messages: PropTypes.array.isRequired
+};
 
 registerComponent('FlashMessages', FlashMessages, withMessages);
 

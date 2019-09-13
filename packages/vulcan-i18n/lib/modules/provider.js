@@ -6,9 +6,9 @@ export default class IntlProvider extends Component{
 
   formatMessage = ({ id, defaultMessage }, values) => {
     return getString({ id, defaultMessage, values, locale: this.props.locale });
-  }
+  };
 
-  formatStuff = (something) => {
+  formatStuff = something => {
     return something;
   }
 
@@ -23,14 +23,14 @@ export default class IntlProvider extends Component{
         formatMessage: this.formatMessage,
         formatHTMLMessage: this.formatStuff,
         now: this.formatStuff,
-      }
+        locale: this.props.locale,
+      },
     };
   }
   
   render(){
     return this.props.children;
   }
-
 }
 
 IntlProvider.childContextTypes = {

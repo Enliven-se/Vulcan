@@ -10,11 +10,15 @@ export const InjectData = {
         utcOffset: moment().utcOffset()
     },
 
-    // encode object to string
-    _encode(ejson) {
-        const ejsonString = EJSON.stringify(ejson);
-        return encodeURIComponent(ejsonString);
-    },
+  // encode object to string
+  _encode(ejson) {
+    try {
+      const ejsonString = EJSON.stringify(ejson);
+      return encodeURIComponent(ejsonString);
+    } catch (error) {
+      return null;
+    }
+  },
 
     // decode string to object
     _decode(encodedEjson) {

@@ -18,12 +18,12 @@ class Group {
 
   can(actions) {
     actions = Array.isArray(actions) ? actions : [actions];
-    this.actions = this.actions.concat(actions);
+    this.actions = this.actions.concat(actions.map(a => a.toLowerCase()));
   }
 
   cannot(actions) {
     actions = Array.isArray(actions) ? actions : [actions];
-    this.actions = _.difference(this.actions, actions);
+    this.actions = _.difference(this.actions, actions.map(a => a.toLowerCase()));
   }
 
 }
@@ -173,6 +173,8 @@ Users.isAdmin = function (userOrUserId) {
 };
 Users.isAdminById = Users.isAdmin;
 
+export const isAdmin = Users.isAdmin;
+
 /**
  * @summary Check if a user can view a field
  * @param {Object} user - The user performing the action
@@ -275,6 +277,7 @@ Users.canCreateField = function (user, field) {
  * Check if a user can edit a field
  * @param {Object} user - The user performing the action
  * @param {Object} field - The field being edited or inserted
+ * @param {Object} document - The document being edited or inserted
  */
 Users.canUpdateField = function (user, field, document) {
   const canUpdate = field.canUpdate || field.editableBy; //OpenCRUD backwards compatibility

@@ -51,7 +51,7 @@ const FormNestedItem = (
             <Components.Button
               className="form-nested-button"
               variant="danger"
-              size="small"
+              size="sm"
               iconButton
               tabIndex="-1"
               onClick={() => {
@@ -74,7 +74,8 @@ const FormNestedItem = (
 FormNestedItem.propTypes = {
   path: PropTypes.string.isRequired,
   itemIndex: PropTypes.number,
-  formComponents: PropTypes.object
+  formComponents: PropTypes.object,
+  hideRemove: PropTypes.bool
 };
 
 FormNestedItem.contextTypes = {

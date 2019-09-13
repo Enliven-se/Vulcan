@@ -1,8 +1,36 @@
-import { compose } from 'react-apollo'; // note: at the moment, compose@react-apollo === compose@redux ; see https://github.com/apollostack/react-apollo/blob/master/src/index.ts#L4-L7
+import { compose } from 'recompose';
 import React from 'react';
 
-export const Components = {}; // will be populated on startup (see vulcan:routing)
-export const ComponentsTable = {} // storage for infos about components
+export const Components = {}; // will be populated on startup 
+export const ComponentsTable = {}; // storage for infos about components
+
+export const coreComponents = [
+  'Alert',
+  'Button',
+  'Modal',
+  'ModalTrigger',
+  'Table',
+  'FormComponentCheckbox',
+  'FormComponentCheckboxGroup',
+  'FormComponentDate',
+  'FormComponentDate2',
+  'FormComponentDateTime',
+  'FormComponentDefault',
+  'FormComponentText',
+  'FormComponentEmail',
+  'FormComponentNumber',
+  'FormComponentRadioGroup',
+  'FormComponentSelect',
+  'FormComponentSelectMultiple',
+  'FormComponentStaticText',
+  'FormComponentTextarea',
+  'FormComponentTime',
+  'FormComponentUrl',
+  'FormComponentInner',
+  'FormControl',
+  'FormElement',
+  'FormItem',
+];
 
 /**
  * Register a Vulcan component with a name, a raw component than can be extended
@@ -44,6 +72,18 @@ export function registerComponent(name, rawComponent, ...hocs) {
 }
 
 /**
+ * Returns true if a component with the given name has been registered with
+ * registerComponent(name, component, ...hocs).
+ *
+ * @param {String} name The name of the component to get.
+ * @returns {Boolean}
+ */
+export const componentExists = (name) => {
+  const component = ComponentsTable[name];
+  return !!component;
+};
+
+/**
  * Get a component registered with registerComponent(name, component, ...hocs).
  *
  * @param {String} name The name of the component to get.
@@ -54,7 +94,7 @@ export const getComponent = (name) => {
   if (!component) {
     throw new Error(`Component ${name} not registered.`)
   }
-  if (component.hocs) {
+  if (component.hocs && component.hocs.length) {
     const hocs = component.hocs.map(hoc => {
       if(!Array.isArray(hoc)) return hoc;
       const [actualHoc, ...args] = hoc;
@@ -140,7 +180,7 @@ export const copyHoCs = (sourceComponent, targetComponent) => {
 
 /**
  * Returns an instance of the given component name of function
- * @param {string|function} component  A component or registered component name
+ * @param {string|function} component  A component, the name of a component, or a react element
  * @param {Object} [props]  Optional properties to pass to the component
  */
 //eslint-disable-next-line react/display-name
@@ -149,8 +189,13 @@ export const instantiateComponent = (component, props) => {
     return null;
   } else if (typeof component === 'string') {
     const Component = getComponent(component);
-    return <Component {...props}/>
-  } else if (typeof component === 'function' && component.prototype && component.prototype.isReactComponent) {
+    return <Component {...props} />;
+  } else if (React.isValidElement(component)) {
+    return React.cloneElement(component, props);
+  } else if (typeof component === 'function' &&
+    component.prototype &&
+    component.prototype.isReactComponent
+  ) {
     const Component = component;
     return <Component {...props}/>
   } else if (typeof component === 'function') {

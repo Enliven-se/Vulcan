@@ -29,7 +29,9 @@ import {
   getErrors,
   getSetting,
   Utils,
-  isIntlField
+  isIntlField,
+  mergeWithComponents,
+  formatLabel,
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import SimpleSchema from 'simpl-schema';
@@ -52,6 +54,8 @@ import uniqBy from 'lodash/uniqBy';
 import isObject from 'lodash/isObject';
 import mapValues from 'lodash/mapValues';
 import pickBy from 'lodash/pickBy';
+import omit from 'lodash/omit';
+import _filter from 'lodash/filter';
 
 import { convertSchema, formProperties } from '../modules/schema_utils';
 import { isEmptyValue } from '../modules/utils';
@@ -63,6 +67,14 @@ import {
 } from '../modules/schema_utils.js';
 import withCollectionProps from './withCollectionProps';
 import { callbackProps } from './propTypes';
+
+
+// props that should trigger a form reset
+const RESET_PROPS = [
+  'collection', 'collectionName', 'typeName', 'document', 'schema', 'currentUser',
+  'fields', 'removeFields',
+  'prefilledProps' // TODO: prefilledProps should be merged instead?
+];
 
 const compactParent = (object, path) => {
   const parentPath = getParentPath(path);
@@ -97,6 +109,17 @@ const getInitialStateFromProps = nextProps => {
     nextProps.prefilledProps,
     nextProps.document
   );
+
+  //if minCount is specified, go ahead and create empty nested documents
+  Object.keys(convertedSchema).forEach(key => {
+    let minCount = convertedSchema[key].minCount;
+    if (minCount) {
+      initialDocument[key] = initialDocument[key] || [];
+      while (initialDocument[key].length < minCount)
+        initialDocument[key].push({});
+    }
+  });
+
   // remove all instances of the `__typename` property from document
   Utils.removeProperty(initialDocument, '__typename');
 
@@ -203,7 +226,9 @@ class SmartForm extends Component {
 
   */
   getData = customArgs => {
+    // we want to keep prefilled data even for hidden/removed fields
     const args = {
+      excludeRemovedFields: false,
       excludeHiddenFields: false,
       replaceIntlFields: true,
       addExtraFields: false,
@@ -232,7 +257,7 @@ class SmartForm extends Component {
     });
 
     // run data object through submitForm callbacks
-    data = runCallbacks(this.submitFormCallbacks, data);
+    data = runCallbacks({ callbacks: this.submitFormCallbacks, iterator: data, properties: { form: this } });
 
     return data;
   };
@@ -273,17 +298,16 @@ class SmartForm extends Component {
       return group;
     });
 
-    // add default group
-    groups = [
-      {
+    // add default group if necessary
+    const defaultGroupFields = _filter(fields, field => !field.group)
+    if (defaultGroupFields.length){
+      groups = [{
         name: 'default',
         label: 'default',
         order: 0,
-        fields: _.filter(fields, field => {
-          return !field.group;
-        })
-      }
-    ].concat(groups);
+        fields: defaultGroupFields
+      }].concat(groups);
+    }
 
     // sort by order
     groups = _.sortBy(groups, 'order');
@@ -304,6 +328,7 @@ class SmartForm extends Component {
     const {
       schema = this.state.schema,
       excludeHiddenFields = true,
+      excludeRemovedFields = true,
       replaceIntlFields = false,
       addExtraFields = true
     } = args;
@@ -319,9 +344,12 @@ class SmartForm extends Component {
     }
 
     // if "hideFields" prop is specified, remove its fields
-    const removeFields = this.props.hideFields || this.props.removeFields;
-    if (typeof removeFields !== 'undefined' && removeFields.length > 0) {
-      relevantFields = _.difference(relevantFields, removeFields);
+    if (excludeRemovedFields) {
+      // OpenCRUD backwards compatibility
+      const removeFields = this.props.removeFields || this.props.hideFields;
+      if (typeof removeFields !== 'undefined' && removeFields.length > 0) {
+        relevantFields = _.difference(relevantFields, removeFields);
+      }
     }
 
     // if "addFields" prop is specified, add its fields
@@ -405,6 +433,7 @@ class SmartForm extends Component {
     if (fieldSchema.description) {
       field.help = fieldSchema.description;
     }
+
     return field;
   };
   handleFieldPath = (field, fieldName, parentPath) => {
@@ -431,16 +460,15 @@ class SmartForm extends Component {
     return field;
   };
   handleFieldChildren = (field, fieldName, fieldSchema, schema) => {
-    // array field
-    if (fieldSchema.field) {
-      field.arrayFieldSchema = fieldSchema.field;
+    // array field 
+    if (fieldSchema.arrayFieldSchema) {
+      field.arrayFieldSchema = fieldSchema.arrayFieldSchema;
       // create a field that can be exploited by the form
       field.arrayField = this.createArraySubField(
         fieldName,
         field.arrayFieldSchema,
         schema
       );
-
       //field.nestedInput = true
     }
     // nested fields: set input to "nested"
@@ -451,7 +479,8 @@ class SmartForm extends Component {
       // get nested schema
       // for each nested field, get field object by calling createField recursively
       field.nestedFields = this.getFieldNames({
-        schema: field.nestedSchema
+        schema: field.nestedSchema,
+        addExtraFields: false
       }).map(subFieldName => {
         return this.createField(
           subFieldName,
@@ -497,22 +526,12 @@ class SmartForm extends Component {
    */
   getLabel = (fieldName, fieldLocale) => {
     const collectionName = this.props.collectionName.toLowerCase();
-    const defaultMessage = '|*|*|';
-    let id = `${collectionName}.${fieldName}`;
-    let intlLabel;
-    intlLabel = this.context.intl.formatMessage({ id, defaultMessage });
-    if (intlLabel === defaultMessage) {
-      id = `global.${fieldName}`;
-      intlLabel = this.context.intl.formatMessage({ id });
-      if (intlLabel === defaultMessage) {
-        id = fieldName;
-        intlLabel = this.context.intl.formatMessage({ id });
-      }
-    }
-    const schemaLabel =
-      this.state.flatSchema[fieldName] &&
-      this.state.flatSchema[fieldName].label;
-    const label = intlLabel || schemaLabel || fieldName;
+    const label = formatLabel({
+      intl: this.context.intl,
+      fieldName: fieldName,
+      collectionName: collectionName,
+      schema: this.state.flatSchema,
+    });
     if (fieldLocale) {
       const intlFieldLocale = this.context.intl.formatMessage({
         id: `locales.${fieldLocale}`,
@@ -672,13 +691,15 @@ class SmartForm extends Component {
 
       Object.keys(newValues).forEach(key => {
         const path = key;
-        const value = newValues[key];
+        let value = newValues[key];
+
         if (isEmptyValue(value)) {
           // delete value
           unset(newState.currentValues, path);
           set(newState.currentDocument, path, null);
           newState.deletedValues = [...prevState.deletedValues, path];
         } else {
+
           // 1. update currentValues
           set(newState.currentValues, path, value);
 
@@ -702,8 +723,72 @@ class SmartForm extends Component {
 
   /*
    
-  Warn the user if there are unsaved changes
+  Install a route leave hook to warn the user if there are unsaved changes
    
+  */
+  componentDidMount = () => {
+    this.checkRouteChange();
+    this.checkBrowserClosing();
+  }
+
+  /*
+  Remove the closing browser check on component unmount
+  see https://gist.github.com/mknabe/bfcb6db12ef52323954a28655801792d
+  */
+  componentWillUnmount = () => {
+    if (this.getWarnUnsavedChanges()) {
+      // unblock route change
+      if (this.unblock) {
+        this.unblock();
+      }
+      // unblock browser change
+      window.onbeforeunload = undefined; //undefined instead of null to support IE
+    }
+  };
+
+
+  // -------------------- Check on form leaving ----- //
+
+  /**
+   * Check if we must warn user on unsaved change
+   */
+  getWarnUnsavedChanges = () => {
+    let warnUnsavedChanges = getSetting('forms.warnUnsavedChanges');
+    if (typeof this.props.warnUnsavedChanges === 'boolean') {
+      warnUnsavedChanges = this.props.warnUnsavedChanges;
+    }
+    return warnUnsavedChanges;
+  }
+
+  // check for route change, prevent form content loss
+  checkRouteChange = () => {
+    // @see https://github.com/ReactTraining/react-router/issues/4635#issuecomment-297828995
+    // @see https://github.com/ReactTraining/history#blocking-transitions
+    if (this.getWarnUnsavedChanges()) {
+      this.unblock = this.props.history.block((location, action) => {
+        // return the message that will pop into a window.confirm alert
+        // if returns nothing, the message won't appear and the user won't be blocked
+        return this.handleRouteLeave();
+
+        /*
+            // React-router 3 implementtion
+            const routes = this.props.router.routes;
+            const currentRoute = routes[routes.length - 1];
+            this.props.router.setRouteLeaveHook(currentRoute, this.handleRouteLeave);
+      
+            */
+      });
+    }
+  }
+  // check for browser closing
+  checkBrowserClosing = () => {
+    //check for closing the browser with unsaved changes too
+    window.onbeforeunload = this.handlePageLeave;
+  }
+
+  /*
+  Check if the user has unsaved changes, returns a message if yes
+  and nothing if not
   */
   handleRouteLeave = () => {
     if (this.isChanged()) {
@@ -715,9 +800,13 @@ class SmartForm extends Component {
     }
   };
 
-  //see https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
-  //the message returned is actually ignored by most browsers and a default message 'Are you sure you want to leave this page? You might have unsaved changes' is displayed. See the Notes section on the mozilla docs above
-  handlePageLeave = event => {
+  /**
+   * Same for browser closing
+   * 
+   * see https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
+   * the message returned is actually ignored by most browsers and a default message 'Are you sure you want to leave this page? You might have unsaved changes' is displayed. See the Notes section on the mozilla docs above
+   */
+  handlePageLeave = (event) => {
     if (this.isChanged()) {
       const message = this.context.intl.formatMessage({
         id: 'forms.confirm_discard',
@@ -730,41 +819,6 @@ class SmartForm extends Component {
       return message;
     }
   };
-
-  /*
-   
-  Install a route leave hook to warn the user if there are unsaved changes
-   
-  */
-  componentDidMount = () => {
-    let warnUnsavedChanges = getSetting('forms.warnUnsavedChanges');
-    if (typeof this.props.warnUnsavedChanges === 'boolean') {
-      warnUnsavedChanges = this.props.warnUnsavedChanges;
-    }
-    if (warnUnsavedChanges) {
-      const routes = this.props.router.routes;
-      const currentRoute = routes[routes.length - 1];
-      this.props.router.setRouteLeaveHook(currentRoute, this.handleRouteLeave);
-
-      //check for closing the browser with unsaved changes
-      window.onbeforeunload = this.handlePageLeave;
-    }
-  };
-
-  /*
-  Remove the closing browser check on component unmount
-  see https://gist.github.com/mknabe/bfcb6db12ef52323954a28655801792d
-  */
-  componentWillUnmount = () => {
-    let warnUnsavedChanges = getSetting('forms.warnUnsavedChanges');
-    if (typeof this.props.warnUnsavedChanges === 'boolean') {
-      warnUnsavedChanges = this.props.warnUnsavedChanges;
-    }
-    if (warnUnsavedChanges) {
-      window.onbeforeunload = undefined; //undefined instead of null to support IE
-    }
-  };
-
   /*
    
   Returns true if there are any differences between the initial document and the current one
@@ -858,14 +912,13 @@ class SmartForm extends Component {
     // call the clear form method (i.e. trigger setState) only if the form has not been unmounted
     // (we are in an async callback, everything can happen!)
     if (this.form) {
-      this.form.reset(this.getDocument());
       this.clearForm({
         document: mutationType === 'edit' ? document : undefined
       });
     }
 
     // run document through mutation success callbacks
-    document = runCallbacks(this.successFormCallbacks, document, { form: this });
+    document = runCallbacks({ callbacks: this.successFormCallbacks, iterator: document, properties: { form: this } });
 
     // run success callback if it exists
     if (this.props.successCallback) this.props.successCallback(document, { form: this });
@@ -881,7 +934,7 @@ class SmartForm extends Component {
     console.log(error);
 
     // run mutation failure callbacks on error, we do not allow the callbacks to change the error
-    runCallbacks(this.failureFormCallbacks, error, { form: this });
+    runCallbacks({ callbacks: this.failureFormCallbacks, iterator: error, properties: { error, form: this } });
 
     if (!_.isEmpty(error)) {
       // add error to state
@@ -902,6 +955,8 @@ class SmartForm extends Component {
   */
   submitForm = data => {
     // note: we can discard the data collected by Formsy because all the data we need is already available via getDocument()
+
+    event && event.preventDefault();
 
     // if form is disabled (there is already a submit handler running) don't do anything
     if (this.state.disabled) {
@@ -968,6 +1023,60 @@ class SmartForm extends Component {
     }
   };
 
+
+  // --------------------------------------------------------------------- //
+  // ------------------------- Props to Pass ----------------------------- //
+  // --------------------------------------------------------------------- //  
+
+  getFormProps = () => ({
+    className: 'document-' + this.getFormType(),
+    id: this.props.id,
+    onSubmit: this.submitForm,
+    onKeyDown: this.formKeyDown,
+    ref: e => {
+      this.form = e;
+    },
+  });
+
+  getFormErrorsProps = () => ({
+    errors: this.state.errors
+  });
+
+  getFormGroupProps = group => ({
+    key: group.name,
+    ...group,
+    group: omit(group, ['fields']),
+    errors: this.state.errors,
+    throwError: this.throwError,
+    currentValues: this.state.currentValues,
+    updateCurrentValues: this.updateCurrentValues,
+    deletedValues: this.state.deletedValues,
+    addToDeletedValues: this.addToDeletedValues,
+    clearFieldErrors: this.clearFieldErrors,
+    formType: this.getFormType(),
+    currentUser: this.props.currentUser,
+    disabled: this.state.disabled,
+    formComponents: mergeWithComponents(this.props.formComponents),
+  });
+
+  getFormSubmitProps = () => ({
+    submitLabel: this.props.submitLabel,
+    cancelLabel: this.props.cancelLabel,
+    revertLabel: this.props.revertLabel,
+    cancelCallback: this.props.cancelCallback,
+    revertCallback: this.props.revertCallback,
+    document: this.getDocument(),
+    deleteDocument:
+      (this.getFormType() === 'edit' &&
+        this.props.showRemove &&
+        this.deleteDocument) ||
+      null,
+    collectionName: this.props.collectionName,
+    currentValues: this.state.currentValues,
+    deletedValues: this.state.deletedValues,
+    errors: this.state.errors,
+  });
+
   // --------------------------------------------------------------------- //
   // ----------------------------- Render -------------------------------- //
   // --------------------------------------------------------------------- //
@@ -978,56 +1087,17 @@ class SmartForm extends Component {
     const FormComponents = mergeWithComponents(this.props.formComponents);
 
     return (
-      <div className={'document-' + this.getFormType()}>
-        <Formsy.Form
-          onSubmit={this.submitForm}
-          onKeyDown={this.formKeyDown}
-          ref={e => {
-            this.form = e;
-          }}
-        >
-          <FormComponents.FormErrors errors={this.state.errors} />
+      <FormComponents.FormElement {...this.getFormProps()}>
+        <FormComponents.FormErrors {...this.getFormErrorsProps()} />
 
-          {fieldGroups.map(group => (
-            <FormComponents.FormGroup
-              key={group.name}
-              {...group}
-              errors={this.state.errors}
-              throwError={this.throwError}
-              currentValues={this.state.currentValues}
-              updateCurrentValues={this.updateCurrentValues}
-              deletedValues={this.state.deletedValues}
-              addToDeletedValues={this.addToDeletedValues}
-              clearFieldErrors={this.clearFieldErrors}
-              formType={this.getFormType()}
-              currentUser={this.props.currentUser}
-              disabled={this.state.disabled}
-              formComponents={FormComponents}
-            />
-          ))}
+        {this.getFieldGroups().map((group, i) => (
+          <FormComponents.FormGroup key={i} {...this.getFormGroupProps(group)} />
+        ))}
 
-          {this.props.repeatErrors && this.renderErrors()}
+        {this.props.repeatErrors && <FormComponents.FormErrors {...this.getFormErrorsProps()} />}
 
-          <FormComponents.FormSubmit
-            submitLabel={this.props.submitLabel}
-            cancelLabel={this.props.cancelLabel}
-            revertLabel={this.props.revertLabel}
-            cancelCallback={this.props.cancelCallback}
-            revertCallback={this.props.revertCallback}
-            document={this.getDocument()}
-            deleteDocument={
-              (this.getFormType() === 'edit' &&
-                this.props.showRemove &&
-                this.deleteDocument) ||
-              null
-            }
-            collectionName={collectionName}
-            currentValues={this.state.currentValues}
-            deletedValues={this.state.deletedValues}
-            errors={this.state.errors}
-          />
-        </Formsy.Form>
-      </div>
+        <FormComponents.FormSubmit {...this.getFormSubmitProps()} />
+      </FormComponents.FormElement>
     );
   }
 }
@@ -1099,7 +1169,7 @@ SmartForm.childContextTypes = {
   currentValues: PropTypes.object
 };
 
-module.exports = SmartForm;
+export default SmartForm;
 
 registerComponent({
   name: 'Form',

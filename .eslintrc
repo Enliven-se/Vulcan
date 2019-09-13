@@ -52,7 +52,9 @@
       1,
       "single"
     ],
-    "react/prop-types": 0
+    "react/display-name": 1,
+    "react/prop-types": 0,
+    "semi": [1, "always"]
   },
   "env": {
     "browser": true,

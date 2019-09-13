@@ -23,12 +23,12 @@ export const intlConfigPropTypes = {
 };
 
 export const intlFormatPropTypes = {
-  formatDate       : funcReq,
-  formatTime       : funcReq,
-  formatRelative   : funcReq,
-  formatNumber     : funcReq,
-  formatPlural     : funcReq,
-  formatMessage    : funcReq,
+  formatDate: funcReq,
+  formatTime: funcReq,
+  formatRelative: funcReq,
+  formatNumber: funcReq,
+  formatPlural: funcReq,
+  formatMessage: funcReq,
   formatHTMLMessage: funcReq,
 };
 
