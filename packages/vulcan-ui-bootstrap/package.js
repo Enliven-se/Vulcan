@@ -10,11 +10,6 @@ Package.onUse(function (api) {
   api.use(['vulcan:lib@1.13.2', 
   'fourseven:scss@4.10.0'
 ]);
-
-  api.use([
-    'vulcan:lib@1.12.10',
-    'fourseven:scss@4.10.0',
-  ]);
   
   api.addFiles([
     'lib/stylesheets/style.scss',

@@ -60,7 +60,6 @@ import _filter from 'lodash/filter';
 import { convertSchema, formProperties } from '../modules/schema_utils';
 import { isEmptyValue } from '../modules/utils';
 import { getParentPath } from '../modules/path_utils';
-import mergeWithComponents from '../modules/mergeWithComponents';
 import {
   getEditableFields,
   getInsertableFields

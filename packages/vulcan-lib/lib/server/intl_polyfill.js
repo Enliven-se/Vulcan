@@ -8,7 +8,7 @@ import { getSetting, registerSetting } from '../modules/settings.js';
 
 registerSetting('locale', 'en');
 
-var areIntlLocalesSupported = require('intl-locales-supported');
+// var areIntlLocalesSupported = require('intl-locales-supported');
 
 var localesMyAppSupports = [
   getSetting('locale', 'en')
@@ -16,7 +16,7 @@ var localesMyAppSupports = [
 
 if (global.Intl) {
   // Determine if the built-in `Intl` has the locale data we need.
-  if (!areIntlLocalesSupported(localesMyAppSupports)) {
+  if (false) { //!areIntlLocalesSupported(localesMyAppSupports)
     // `Intl` exists, but it doesn't have the data we need, so load the
     // polyfill and replace the constructors with need with the polyfill's.
     var IntlPolyfill = require('intl');

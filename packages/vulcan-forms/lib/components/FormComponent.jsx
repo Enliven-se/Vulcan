@@ -5,7 +5,6 @@ import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import SimpleSchema from 'simpl-schema';
 import { isEmptyValue, getNullValue } from '../modules/utils.js';
-import mergeWithComponents from '../modules/mergeWithComponents';
 
 class FormComponent extends Component {
   
