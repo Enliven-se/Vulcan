@@ -4,13 +4,15 @@
 
 import { makeExecutableSchema } from 'apollo-server';
 import { mergeSchemas } from 'graphql-tools';
-import { GraphQLSchema, generateTypeDefs } from '../../modules/graphql/index';
+import { GraphQLSchema, generateTypeDefs } from '../../modules/graphql';
 import { runCallbacks } from '../../modules/callbacks.js';
 
 
 const initGraphQL = () => {
   runCallbacks('graphql.init.before');
   const typeDefs = generateTypeDefs(GraphQLSchema);
+  console.log("typeDefs=>", typeDefs);
+  
   const executableSchema = makeExecutableSchema({
     typeDefs,
     resolvers: GraphQLSchema.resolvers,
