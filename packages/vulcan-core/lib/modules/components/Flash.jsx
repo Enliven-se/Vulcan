@@ -20,10 +20,12 @@ class Flash extends PureComponent {
   }
 
   dismissFlash(e) {
-    e.preventDefault();
-    this
-      .props
-      .clear(this.props.message._id);
+    if (this.props.clear) {
+      e.preventDefault();
+      this
+        .props
+        .clear(this.props.message._id);
+    }
   }
 
   getProperties = (errorObject = this.props.message.content) => {
