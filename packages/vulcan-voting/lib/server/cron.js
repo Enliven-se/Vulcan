@@ -4,9 +4,7 @@ import { VoteableCollections } from '../modules/make_voteable.js';
 
 registerSetting('voting.scoreUpdateInterval', 60, 'How often to update scores, in seconds');
 
-// TODO use a node cron or at least synced-cron
-Meteor.startup(function () {
-  
+const addJob = () => {
   const scoreInterval = parseInt(getSetting('voting.scoreUpdateInterval'));
 
   if (scoreInterval > 0) {
@@ -46,6 +44,16 @@ Meteor.startup(function () {
       }, 3600 * 1000);
 
     });
+  }
+}
+
+// TODO use a node cron or at least synced-cron
+Meteor.startup(function () {
+  const jobname = 'vulcan-voting'
+  if (Meteor.isDevelopment) {
+    console.log(`[cron] running in development mode, skipping ${jobname}`);
+  } else {
+    addJob()
   }
 });
 

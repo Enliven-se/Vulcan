@@ -121,13 +121,14 @@ VulcanEmail.send = (to, subject, html, text, throwErrors, cc, bcc, replyTo, head
 
     const shouldSendEmail = process.env.NODE_ENV === 'production' || getSetting('enableDevelopmentEmails', false)
 
-    console.log(`//////// sending email${shouldSendEmail ? '' : ' (simulation)'}…`); // eslint-disable-line
+    console.log(`//////// VulcanEmail.send: sending email${shouldSendEmail ? '' : ' (simulation)'}…`); // eslint-disable-line
     console.log('from: ' + from); // eslint-disable-line
     console.log('to: ' + to); // eslint-disable-line
     console.log('cc: ' + cc); // eslint-disable-line
     console.log('bcc: ' + bcc); // eslint-disable-line
     console.log('replyTo: ' + replyTo); // eslint-disable-line
     console.log('headers: ' + JSON.stringify(headers)); // eslint-disable-line
+  // console.log('html: ' + JSON.stringify(html)); // eslint-disable-line
 
     if (shouldSendEmail) {
         try {

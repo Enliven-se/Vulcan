@@ -13,5 +13,5 @@ accounts-password@1.5.1
 # accounts-twitter
 # accounts-facebook
 
-vulcan:debug
-meteortesting:mocha
+#vulcan:debug
+#meteortesting:mocha
